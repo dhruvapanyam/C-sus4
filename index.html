@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Harmonizer</title>
+    <script src="./js/tone.js"></script>
+</head>
+<body>
+    <div id="site-container" class="container">
+        <div id="input-container"></div>
+            <label>INPUT MELODY:</label>
+            <input type="text" value="0 4 11 7" id="melody-input">
+        </div>
+
+        <div id="compute-container">
+            <button id="compute-chords" onclick="createAccompaniment()">COMPUTE</button>
+        </div>
+
+        <div id="output-container"></div>
+            <label>OUTPUT CHORDS:</label>
+            <input type="text" value="IV V III vi" id="chords-output">
+        </div>
+
+        <div id="play-container">
+            <button id="play-chords" onclick="triggerChordOutput()">PLAY</button>
+        </div>
+
+    </div>
+</body>
+
+<script src="./js/script.js"></script>
+</html>
