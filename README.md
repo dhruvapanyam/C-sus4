@@ -5,4 +5,4 @@ To run, start a local server to access sample tone files:
 
 The default port is 8000.
 
-Then open the port on your [browser] (localhost:8000)
+Then open the port on your [browser] (http://localhost:8000)
