@@ -31,20 +31,26 @@ for (let i=0; i<12; i++) notes[i] += String(octave)
 
 // ------------------------------------------
 
-function playChord(chord,waittime=0){
+function playChord(chord,waittime=0,tone=null){
     // format: chord = array
     // trigger piano to play the 3 notes at the same time
     for (note of chord){
         piano.triggerAttackRelease(notes[note],"8n",Tone.now() + waittime)
     }
+    if (tone != null){
+        temp = notes[tone]
+        temp = temp.slice(0,temp.length-1)
+        piano.triggerAttackRelease(temp+String(octave+1),"8n",Tone.now() + waittime)
+    }
 }
 
-function playChordProgression(chords){
+function playChordProgression(chords,tones=null){
     // format: chords = ['I','ii',...]
     // trigger piano to play the chords
     for (let i=0; i<chords.length; i++){
-        waiting_time = i*1.4 // 2 seconds per chord
-        playChord(chord_notes[chords[i]],waiting_time)
+        waiting_time = i*0.8 // 2 seconds per chord
+        arr = chord_notes[chords[i]]
+        playChord(arr,waiting_time,tones[i])
     }
 
 }
@@ -55,16 +61,18 @@ function createAccompaniment(melody){
 
     // get input notes
     input = document.getElementById('melody-input')
-    input_nums = input.value.split(' ')
+    // input_nums = input.value.split(' ')
 
-    if (input_nums.length != bar_length){
-        alert('Please enter '+String(bar_length)+' numbers (0..11)!')
-        return
-    }
+    // if (input_nums.length != 4 * bar_length){
+    //     alert('Please enter '+String(bar_length)+' numbers (0..11)!')
+    //     return
+    // }
 
-    input_nums = input_nums.map(x=>parseInt(x))
+    // input_nums = input_nums.map(x=>parseInt(x))
 
     // generate chords using the melody notes in input_nums
+
+    progression = G.parse_master(input.value,true)
 
 
 
@@ -72,11 +80,11 @@ function createAccompaniment(melody){
     // -------------------------------------------
     // for now: generate random chords
 
-    progression = []
-    for (let i=0; i<bar_length; i++){
-        cur = all_chords[Math.floor(Math.random() * all_chords.length)]
-        progression.push(cur)
-    }
+    // progression = []
+    // for (let i=0; i<bar_length; i++){
+    //     cur = all_chords[Math.floor(Math.random() * all_chords.length)]
+    //     progression.push(cur)
+    // }
 
     output = document.getElementById('chords-output')
     output.value = progression.join(' ')
@@ -88,7 +96,9 @@ function createAccompaniment(melody){
 function triggerChordOutput(){
     output = document.getElementById('chords-output')
     output_nums = output.value.split(' ')
-    playChordProgression(output_nums)
+    input = document.getElementById('melody-input')
+    input_nums = input.value.split(' ')
+    playChordProgression(output_nums,input_nums)
 }
 
 
