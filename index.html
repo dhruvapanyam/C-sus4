@@ -14,17 +14,29 @@
             <input type="text" value="0 4 11 7" id="melody-input">
         </div>
 
+        <div id="iplay-container">
+            <button id="play-notes" onclick="triggerMelodyInput()">PLAY</button>
+        </div>
+
         <div id="compute-container">
             <button id="compute-chords" onclick="createAccompaniment()">COMPUTE</button>
         </div>
+        
 
-        <div id="output-container"></div>
+        <div id="output-container">
             <label>OUTPUT CHORDS:</label>
             <input type="text" value="IV V III vi" id="chords-output">
         </div>
 
         <div id="play-container">
             <button id="play-chords" onclick="triggerChordOutput()">PLAY</button>
+        </div>
+
+        <div id="tempo-container">
+            <label>TEMPO:</label>
+            <input type="range" id="chords-tempo" min=50 max=200 value=120 oninput="changeTempo(this.value)">
+            <label id="tempo-display">120</label>
+
         </div>
 
     </div>

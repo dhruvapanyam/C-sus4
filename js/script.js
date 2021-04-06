@@ -24,10 +24,22 @@ const chord_notes = {
 
 const all_chords = ['I','ii','iii','III','IV','V','vi']
 
-const octave = 3
+var OCTAVE = 3
 const bar_length = 4
 const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
-for (let i=0; i<12; i++) notes[i] += String(octave)
+var TEMPO = 120
+
+function assignOctave(num,oct = OCTAVE){
+    return notes[num] + String(oct)
+}
+
+// for (let i=0; i<12; i++) notes[i] += String(octave)
+
+function tempo_to_time(tempo){
+    // tempo = 120 bpm
+    return 60 / tempo
+}
+
 
 // ------------------------------------------
 
@@ -35,12 +47,10 @@ function playChord(chord,waittime=0,tone=null){
     // format: chord = array
     // trigger piano to play the 3 notes at the same time
     for (note of chord){
-        piano.triggerAttackRelease(notes[note],"8n",Tone.now() + waittime)
+        piano.triggerAttackRelease(assignOctave(note),"8n",Tone.now() + waittime)
     }
     if (tone != null){
-        temp = notes[tone]
-        temp = temp.slice(0,temp.length-1)
-        piano.triggerAttackRelease(temp+String(octave+1),"8n",Tone.now() + waittime)
+        piano.triggerAttackRelease(assignOctave(tone,OCTAVE+1),"8n",Tone.now() + waittime)
     }
 }
 
@@ -48,7 +58,7 @@ function playChordProgression(chords,tones=null){
     // format: chords = ['I','ii',...]
     // trigger piano to play the chords
     for (let i=0; i<chords.length; i++){
-        waiting_time = i*0.8 // 2 seconds per chord
+        waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
         arr = chord_notes[chords[i]]
         playChord(arr,waiting_time,tones[i])
     }
@@ -101,6 +111,21 @@ function triggerChordOutput(){
     playChordProgression(output_nums,input_nums)
 }
 
+function triggerMelodyInput(){
+    input = document.getElementById('melody-input')
+    input_nums = input.value.split(' ')
+    for (let i=0; i<input_nums.length; i++){
+        waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
+        // arr = chord_notes[chords[i]]
+        playChord([],waiting_time,input_nums[i])
+    }
+}
+
+
+function changeTempo(tempo){
+    TEMPO = tempo;
+    document.getElementById('tempo-display').innerHTML = TEMPO
+}
 
 
 
