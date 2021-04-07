@@ -14,6 +14,11 @@
             <input type="text" value="0 4 11 7" id="melody-input">
         </div>
 
+        <div id="record-container">
+            <button id="record-notes" onclick="recordMelodyInput()">RECORD</button>
+            <button id="stop-record-notes" onclick="stopRecordingMelodyInput()">STOP</button>
+        </div>
+
         <div id="iplay-container">
             <button id="play-notes" onclick="triggerMelodyInput()">PLAY</button>
         </div>
@@ -39,9 +44,15 @@
 
         </div>
 
+        <div id="detected-note">
+            <label>DETECTED NOTE:</label>
+            <label id="detected-note-display"></label>
+        </div>
+
     </div>
 </body>
 
 <script src="./js/script.js"></script>
 <script src="./js/grammar.js"></script>
+<script src="./js/parse.js"></script>
 </html>
