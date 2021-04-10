@@ -7,6 +7,15 @@ pianoGain = new Tone.Gain().toMaster()
 pianoGain.gain.value = 0.6
 piano.connect(pianoGain)
 
+metronome = new Tone.Sampler({
+    C3: './../samples/hihat.wav'
+},{
+    release: 80
+})
+metronomeGain = new Tone.Gain().toMaster()
+metronomeGain.gain.value = 0.3
+metronome.connect(metronomeGain)
+
 // before connecting to master, we can connect it to filters and gains and other effects
 
 // ------------- BASIC GRAMMAR --------------
@@ -16,13 +25,13 @@ const chord_notes = {
     'I' : [0,4,7],
     'ii' : [2,5,9],
     'iii' : [4,7,11],
-    'III' : [4,8,11],
+    // 'III' : [4,8,11],
     'IV' : [5,9,0],
     'V' : [7,11,2],
     'vi' : [9,0,4]
 }
 
-const all_chords = ['I','ii','iii','III','IV','V','vi']
+const all_chords = ['I','ii','iii','IV','V','vi']
 
 var OCTAVE = 3
 const bar_length = 4

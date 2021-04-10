@@ -151,7 +151,7 @@ class CFG{
         }
 
         chords.push(parsed[parsed.length-2])
-
+        console.log(parsed)
         return chords
     }
 
@@ -185,7 +185,7 @@ const rules = [
     ['S','IV'],
     ['S','ii'],
     ['D','iii'],
-    ['D','III'],
+    // ['D','III'],
     ['D','V'],
 
     ['I','0'],
@@ -197,9 +197,9 @@ const rules = [
     ['iii','4'],
     ['iii','7'],
     ['iii','11'],
-    ['III','4'],
-    ['III','8'],
-    ['III','11'],
+    // ['III','4'],
+    // ['III','8'],
+    // ['III','11'],
     ['IV','5'],
     ['IV','9'],
     ['IV','0'],

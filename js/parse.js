@@ -24,7 +24,7 @@ function getLoudestNote(arr){
     return notes[ans]
 }
 
-MIC = new Tone.UserMedia().toMaster()
+MIC = new Tone.UserMedia()
 var micALX = new Tone.Analyser('fft',16384)
 MIC.connect(micALX)
 
@@ -49,17 +49,45 @@ function array_to_runlength(arr){
 }
 
 
+function startMetronome(){
+    
+    console.log(TEMPO)
+    console.log(piano)
+    for (let i = 0; i < 16; i++){
+        metronome.triggerAttackRelease('C3','8n',Tone.now() + i*tempo_to_time(TEMPO))
+    }
+}
+
+function maxIndex(arr){
+    return arr.indexOf(Math.max(...arr))
+}
+
+
 detect_notes = undefined
 
 var recorded = []
+counter = 0
 function recordMelodyInput(){
     recorded = []
     MIC.open()
+    startMetronome()
     detect_notes = setInterval(function(){
         alx = micALX.getValue()
-        detected = getLoudestNote(alx)
-        document.getElementById('detected-note-display').innerHTML = detected
-        recorded.push(detected)
+        temp = []
+        for(id in alx_note){
+            temp.push(alx[id])
+        }
+        // recorded.push(temp)
+        // i = 0
+        // for(id in alx_note){
+        //     if (alx[id] > -100)
+        //         chart.data[0].dataPoints[i].y = parseInt(alx[id]) + 100
+        //     i++
+        // }
+        // chart.render()
+        detected = maxIndex(temp)
+        document.getElementById('detected-note-display').innerHTML = notes[detected%12]
+        recorded.push(detected%12)
     },1)
 }
 
@@ -67,5 +95,58 @@ function stopRecordingMelodyInput(){
     MIC.close()
     clearInterval(detect_notes)
     runlength = array_to_runlength(recorded)
-    console.log(runlength)
+    // console.log(runlength)
+    melody = getNotesUsingTempo(16)
+    document.getElementById('melody-input').value = melody.join(' ')
 }
+
+
+function getNotesUsingTempo(intervals){
+    recorded = recorded.slice(10)
+    console.log(recorded.length / intervals)
+    let window = parseInt(recorded.length / intervals)
+
+    res = []
+    for (i=0;i<intervals;i++){
+        freqs = notes.map(x=>0)
+        for(j=i*window;j<(i+1)*window;j++){
+            if(recorded[j] == 1 || recorded[j] == 3 || recorded[j] == 6 || recorded[j] == 8 || recorded[j] == 10) continue
+            freqs[recorded[j]] ++
+        }
+        res.push(maxIndex(freqs))
+        // console.log(freqs)
+    }
+
+    return res
+
+}
+
+function cleanRunLength(runlength){
+    
+}
+
+
+// var chart = new CanvasJS.Chart("chartContainer", {
+// 	theme: "light1", // "light2", "dark1", "dark2"
+// 	animationEnabled: false, // change to true		
+// 	title:{
+// 		text: "Basic Column Chart"
+// 	},
+// 	data: [
+// 	{
+// 		// Change type to "bar", "area", "spline", "pie",etc.
+// 		type: "column",
+// 		dataPoints: [
+// 		]
+// 	}
+// 	]
+// });
+// chart.render()
+// i = 0
+// colours = ['green','blue','red','yellow','purple','grey','cyan','pink','brown','orange','lightblue','maroon']
+// for(id in alx_note){
+//     chart.data[0].dataPoints.push({label: alx_note[id], y:0,color:colours[i%12]})
+//     i+=1
+// }
+// chart.data[0].dataPoints.push({label:'die',y:99,color:'black'})
+// chart.render()
