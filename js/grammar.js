@@ -142,6 +142,7 @@ class CFG{
 
 
         let parsed = this.parse(input.split(' '),null,randomize)
+        if(parsed.length == 0) return undefined
         // console.log(parsed)
 
         let chords = []
@@ -172,7 +173,7 @@ const start = 'U'
 G = new CFG(variables,alphabet,start)
 
 const rules = [
-    ['U','B1 B2 B3 B4'],
+    ['U','B1'],
     ['B1','T A A A'],
     ['B2','A A A A'],
     ['B3','A A A A'],

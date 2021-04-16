@@ -12,7 +12,7 @@
     <div id="site-container" class="container">
         <div id="input-container"></div>
             <label>INPUT MELODY:</label>
-            <input type="text" value="0 4 2 0" id="melody-input">
+            <input type="text" value="0 4 2 0 0 5 4 2 0 11 9 7 5 4 2 0" id="melody-input" size="50">
         </div>
 
         <div id="record-container">
@@ -24,6 +24,12 @@
             <button id="play-notes" onclick="triggerMelodyInput()">PLAY</button>
         </div>
 
+        <div id="countdown-container">
+            <label id="countdown"></label>
+        </div>
+
+        
+
         <div id="compute-container">
             <button id="compute-chords" onclick="createAccompaniment()">COMPUTE</button>
         </div>
@@ -31,7 +37,7 @@
 
         <div id="output-container">
             <label>OUTPUT CHORDS:</label>
-            <input type="text" value="vi ii V I" id="chords-output">
+            <input type="text" value="I vi V IV vi ii iii V I iii vi V IV iii V I" id="chords-output" size="50">
         </div>
 
         <div id="play-container">
@@ -42,6 +48,7 @@
             <label>TEMPO:</label>
             <input type="range" id="chords-tempo" min=50 max=200 value=120 oninput="changeTempo(this.value)">
             <label id="tempo-display">120</label>
+            <button id="metronome" onclick="startMetronome(4)">METRONOME</button>
 
         </div>
 

@@ -49,11 +49,9 @@ function array_to_runlength(arr){
 }
 
 
-function startMetronome(){
+function startMetronome(n=16){
     
-    console.log(TEMPO)
-    console.log(piano)
-    for (let i = 0; i < 16; i++){
+    for (let i = 0; i < n; i++){
         metronome.triggerAttackRelease('C3','8n',Tone.now() + i*tempo_to_time(TEMPO))
     }
 }
@@ -69,6 +67,22 @@ var recorded = []
 counter = 0
 function recordMelodyInput(){
     recorded = []
+    countdown = document.getElementById('countdown')
+    countdown.innerHTML = '3'
+    setTimeout(()=>{
+        countdown.innerHTML = '2'
+        setTimeout(()=>{
+            countdown.innerHTML = '1'
+            setTimeout(()=>{
+                countdown.innerHTML = 'GO!'
+                start_recording()
+            },1000)
+        },1000)
+    },1000)
+    
+}
+
+function start_recording(){
     MIC.open()
     startMetronome()
     detect_notes = setInterval(function(){
@@ -98,6 +112,7 @@ function stopRecordingMelodyInput(){
     // console.log(runlength)
     melody = getNotesUsingTempo(16)
     document.getElementById('melody-input').value = melody.join(' ')
+    document.getElementById('countdown').innerHTML = ''
 }
 
 

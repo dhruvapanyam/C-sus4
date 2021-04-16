@@ -90,8 +90,14 @@ function createAccompaniment(melody){
     // input_nums = input_nums.map(x=>parseInt(x))
 
     // generate chords using the melody notes in input_nums
+    console.log('computing')
+    progression = G2.parse_master(input.value,true)
+    console.log(progression)
 
-    progression = G.parse_master(input.value,true)
+    if(progression === undefined) {
+        alert('The grammar could not compute a valid derivation. (Make sure there are 16 notes)')
+        return
+    }
 
 
 

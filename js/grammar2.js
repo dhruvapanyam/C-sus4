@@ -16,50 +16,35 @@ Grammar:
 
 U -> B1
 
-B1 -> Chord1
+B1 -> I A A A
+A -> I | ii | iii | IV | V | vi
 
-Chord1 -> C1 
 
-C1 -> I C2 | I C3 | I C4 .... 
-C2 -> ii C1 | ...
-..
-..
-
-I -> 0 | 4 | 7
-..
 
 
 
 
 */
 
-const chord_names = ['C1','C2','C3','C4','C5','C6']
+const chord_names = ['I','ii','iii','IV','V','vi']
 
 chord_transitions = {
     //       I      ii      iii     IV      V       vi
-    'C1':   [4,     2.5,    2.5,    5,      5,      4.3],
-    'C2':   [2,     4,      3.5,    3,      8,      3],
-    'C3':   [3,     2,      4,      5,      4,      6],
-    'C4':   [6,     4,      2.5,    4,      7,      6],
-    'C5':   [7,     2,      6,      5.5,    5,      6.5],
-    'C6':   [5.6,   7,      6,      5.5,    5,      4],
+    'I':   [20,     2.5,    2.5,    50,      50,      43],
+    'ii':   [2,     4,      35,    3,      80,      3],
+    'iii':   [3,     2,      4,      50,      4,      6],
+    'IV':   [30,     4,      2.5,    4,      50,      30],
+    'V':   [70,     2,      6,      35,    5,      65],
+    'vi':   [56,   7,      6,      30,    40,      4],
 }
 
-const name_to_chord = {
-    'C1':'I',
-    'C2':'ii',
-    'C3':'iii',
-    'C4':'IV',
-    'C5':'V',
-    'C6':'vi',
-}
 
 
 class CFG2 {
     constructor(vars,alph,start){
         this.rules = {}
-        this.vars = new Set(vars)
-        this.alph = new Set(alph)
+        this.variables = new Set(vars)
+        this.alphabet = new Set(alph)
         this.start = start
         this.DP = {}
         this.counter = 0
@@ -77,7 +62,16 @@ class CFG2 {
 
     }
 
-    parse = (input_main,str=null) => {
+    /*
+
+    Example input: 0 7 4 5
+    0 7 4 5, I A A A, null
+
+
+    */
+
+    parse = (input_main,str=null,prev_chord=null) => {
+        // console.log(input_main,str,prev_chord)
         let input = input_main
         // console.log('.')
         // format: 
@@ -108,7 +102,7 @@ class CFG2 {
                 return []
             }
 
-            let res = this.parse(input.slice(1), str.slice(1))
+            let res = this.parse(input.slice(1), str.slice(1), prev_chord)
             
             if (res.length > 0) return [str].concat(res)
 
@@ -116,19 +110,35 @@ class CFG2 {
 
         else{
             
-            let temp_arr;
+            // let temp_arr;
 
-            if (str[0] in chord_transitions){
-                temp_arr = sample_shuffle(str[0])
+            // if (str[0] in chord_transitions){
+            //     temp_arr = sample_shuffle(str[0])
+            // }
+            // else{
+            //     temp_arr = this.rules[str[0]]
+            // }
+            let shuf = false
+            let temp_arr = this.rules[str[0]]
+            if (prev_chord != null) {
+                if (str[0] == 'A') {
+                    temp_arr = reorder_rules(prev_chord).map(x=>[x])
+                    // console.log(prev_chord, temp_arr)
+                    shuf = true
+                }
+            }
+            let next_chord
+            if (chord_set.has(str[0])){
+                next_chord = str[0]
             }
             else{
-                temp_arr = this.rules[str[0]]
+                next_chord = prev_chord
             }
 
             for(let rule of temp_arr){
-
+                // console.log('at rule =',rule)
                 let new_str = rule.concat(str.slice(1))     // if str = ['U'] and rule = ['B1','B2'] ... concatenated = ['B1','B2'] + str[1:]
-                let res = this.parse(input, new_str)
+                let res = this.parse(input, new_str, next_chord)
 
                 if (res.length > 0) return [str].concat(res)
             }
@@ -143,7 +153,7 @@ class CFG2 {
         this.DP = {}
 
 
-        let parsed = this.parse(input.split(' '),null,randomize)
+        let parsed = this.parse(input.split(' '),null,null)
         // console.log(parsed)
 
         let chords = []
@@ -152,7 +162,7 @@ class CFG2 {
                 chords.push(parsed[i-2][0])
         }
 
-        chords.push(parsed[parsed.length-2])
+        chords.push(parsed[parsed.length-2][0])
 
         return chords
     }
@@ -201,19 +211,22 @@ function reorder_rules(chord){
 }
 
 
+chord_set = new Set(['I','ii','iii','IV','V','vi'])
 // ----------------------------------------------------------------------------
-
+let temp_vars = ['U','B1','B2','B3','B4','A','I','ii','iii','IV','V','vi']
+let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12']
 let temp_rules = [
-    ['U','B1'],
-    ['B1','C1'],
-    ['C1','I'],
-    ['C1','I'],
-    ['T','vi'],
-    ['S','IV'],
-    ['S','ii'],
-    ['D','iii'],
-    ['D','III'],
-    ['D','V'],
+    ['U','B1 B2 B3 B4'],
+    ['B1','I A A A'],
+    ['B2','A A A A'],
+    ['B3','A A A A'],
+    ['B4','A A A I'],
+    ['A','I'],
+    ['A','ii'],
+    ['A','iii'],
+    ['A','IV'],
+    ['A','V'],
+    ['A','vi'],
 
     ['I','0'],
     ['I','4'],
@@ -235,5 +248,15 @@ let temp_rules = [
     ['V','2'],
     ['vi','9'],
     ['vi','0'],
-    ['vi','4']
+    ['vi','4'],
+    ['I','12'],
+    ['ii','12'],
+    ['iii','12'],
+    ['IV','12'],
+    ['V','12'],
+    ['vi','12'],
 ]
+
+
+G2 = new CFG2(temp_vars, temp_terminals, 'U')
+G2.add_rules(temp_rules)
