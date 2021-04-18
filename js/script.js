@@ -22,6 +22,7 @@ metronome.connect(metronomeGain)
 
 const chord_notes = {
 
+
     'I' : [0,4,7],
     'ii' : [2,5,9],
     'iii' : [4,7,11],
@@ -39,6 +40,8 @@ const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
 var TEMPO = 120
 
 function assignOctave(num,oct = OCTAVE){
+    oct += parseInt(num/ 12)
+    num %= 12
     return notes[num] + String(oct)
 }
 
@@ -59,7 +62,8 @@ function playChord(chord,waittime=0,tone=null){
         piano.triggerAttackRelease(assignOctave(note),"8n",Tone.now() + waittime)
     }
     if (tone != null){
-        piano.triggerAttackRelease(assignOctave(tone,OCTAVE+1),"8n",Tone.now() + waittime)
+        //alert(tone)
+        piano.triggerAttackRelease(tone,"8n",Tone.now() + waittime)
     }
 }
 
@@ -74,12 +78,15 @@ function playChordProgression(chords,tones=null){
 
 }
 
-function createAccompaniment(melody){
+function createAccompaniment(){
     // cuurent format of melody: 4 notes
     // output format: 4 chords -> eg. [I,IV,vi,I]
 
     // get input notes
     input = document.getElementById('melody-input')
+    input = notesToNums(input.value)
+    console.log(input)
+
     // input_nums = input.value.split(' ')
 
     // if (input_nums.length != 4 * bar_length){
@@ -91,7 +98,8 @@ function createAccompaniment(melody){
 
     // generate chords using the melody notes in input_nums
     console.log('computing')
-    progression = G2.parse_master(input.value,true)
+    progression = G2.parse_master(input,true)[0]
+
     console.log(progression)
 
     if(progression === undefined) {
@@ -118,21 +126,31 @@ function createAccompaniment(melody){
 
 }
 
+notes_idx = {"C": 0,"C#": 1,"D": 2,"D#": 3,"E": 4,"F":5,"F#":6 ,"G":7,"G#":8 ,"A":9 ,"A#":10 ,"B": 11}
+
+function notesToNums(notes) {
+    return notes.split(' ').map(x=>notes_idx[x.slice(0, x.length - 1)]).join(' ')
+    
+}
+
 function triggerChordOutput(){
     output = document.getElementById('chords-output')
     output_nums = output.value.split(' ')
     input = document.getElementById('melody-input')
+    //input = notesToNums(input.value)
     input_nums = input.value.split(' ')
     playChordProgression(output_nums,input_nums)
 }
 
 function triggerMelodyInput(){
     input = document.getElementById('melody-input')
-    input_nums = input.value.split(' ')
-    for (let i=0; i<input_nums.length; i++){
+    //input = notesToNums(input.value)
+    input_notes = input.value.split(' ')
+    for (let i=0; i<input_notes.length; i++){
         waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
         // arr = chord_notes[chords[i]]
-        playChord([],waiting_time,input_nums[i])
+        piano.triggerAttackRelease(input_notes[i],"8n",Tone.now() + waiting_time)
+        
     }
 }
 

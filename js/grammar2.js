@@ -28,15 +28,52 @@ A -> I | ii | iii | IV | V | vi
 
 const chord_names = ['I','ii','iii','IV','V','vi']
 
-chord_transitions = {
+
+chord_transitions = [{
     //       I      ii      iii     IV      V       vi
-    'I':   [20,     2.5,    2.5,    50,      50,      43],
+    // 'I':   [2.0,     2.5,    2.5,    5.0,      5.0,      4.3],
+    // 'ii':   [2.0,     4,      3.5,    3,      8,      3],
+    // 'iii':   [3,     2,      4,      5,      4,      6],
+    // 'IV':   [3,     4,      2.5,    4,      5,      3],
+    // 'V':   [7,     2,      6,      3,    5,      6],
+    // 'vi':   [5,   7,      6,      3,    4,      4],
+
+    'I':   [20,     2.5,    2.5,    5,      5,      50],
     'ii':   [2,     4,      35,    3,      80,      3],
     'iii':   [3,     2,      4,      50,      4,      6],
     'IV':   [30,     4,      2.5,    4,      50,      30],
     'V':   [70,     2,      6,      35,    5,      65],
     'vi':   [56,   7,      6,      30,    40,      4],
+},
+{
+    'I':   [20,     2.5,    2.5,    50,      50,      43],
+    'ii':   [2,     4,      35,    3,      80,      3],
+    'iii':   [3,     2,      4,      50,      4,      6],
+    'IV':   [30,     4,      2.5,    4,      50,      30],
+    'V':   [70,     2,      6,      35,    5,      65],
+    'vi':   [56,   0,      6,      60,    4,      4],
+},
+{
+    'I':   [20,     2.5,    2.5,    50,      50,      43],
+    'ii':   [2,     4,      35,    3,      80,      3],
+    'iii':   [3,     2,      4,      50,      4,      6],
+    'IV':   [3,     4,      2.5,    4,      50,      3],
+    'V':   [70,     2,      6,      35,    5,      65],
+    'vi':   [56,   0,      6,      6,    4,      4],
+},
+{
+    'I':   [20,     2.5,    2.5,    50,      50,      43],
+    'ii':   [2,     4,      35,    3,      80,      3],
+    'iii':   [3,     2,      4,      50,      4,      6],
+    'IV':   [30,     4,      2.5,    4,      50,      30],
+    'V':   [70,     2,      6,      3,    5,      6],
+    'vi':   [56,   0,      6,      30,    40,      4],
 }
+
+]
+// I IV vi I...
+// I IV V I or vi...
+// I V 
 
 
 
@@ -48,7 +85,10 @@ class CFG2 {
         this.start = start
         this.DP = {}
         this.counter = 0
+        this.threshold = 0
+        this.score = 0
         console.log(this)
+
     }
 
     add_rules = (rules) => {
@@ -70,7 +110,7 @@ class CFG2 {
 
     */
 
-    parse = (input_main,str=null,prev_chord=null) => {
+    parse = (input_main,str=null,prev_chord=null, score=0, pos=0) => {
         // console.log(input_main,str,prev_chord)
         let input = input_main
         // console.log('.')
@@ -92,17 +132,21 @@ class CFG2 {
             return []
         }
         // console.log(str,str.length)
-        if(inp_joined == str_joined) return [str]
+        if(inp_joined == str_joined && score > this.threshold) {
+            //console.log("Score: ", score);
+            this.score = score
+            return [str]
+        }
 
 
-
+        // console.log(str)
         if(this.alphabet.has(str[0])){
 
             if(str[0] != input[0]){
                 return []
             }
 
-            let res = this.parse(input.slice(1), str.slice(1), prev_chord)
+            let res = this.parse(input.slice(1), str.slice(1), prev_chord, score, pos)
             
             if (res.length > 0) return [str].concat(res)
 
@@ -122,23 +166,36 @@ class CFG2 {
             let temp_arr = this.rules[str[0]]
             if (prev_chord != null) {
                 if (str[0] == 'A') {
-                    temp_arr = reorder_rules(prev_chord).map(x=>[x])
-                    // console.log(prev_chord, temp_arr)
+                    temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
+                    if(prev_chord == 'vi') 
+                        console.log(temp_arr.join(' '))
                     shuf = true
                 }
             }
             let next_chord
             if (chord_set.has(str[0])){
                 next_chord = str[0]
+
+                if(prev_chord != null) {
+                    pos ++
+                    pos %= 4
+                    let next_chord_pos = 0;
+                    for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
+                    //alert(prev_chord)
+                    
+                    score += chord_transitions[pos][prev_chord][next_chord_pos];
+                }
+                
             }
             else{
                 next_chord = prev_chord
             }
 
+            // console.log(str[0], temp_arr)
             for(let rule of temp_arr){
                 // console.log('at rule =',rule)
                 let new_str = rule.concat(str.slice(1))     // if str = ['U'] and rule = ['B1','B2'] ... concatenated = ['B1','B2'] + str[1:]
-                let res = this.parse(input, new_str, next_chord)
+                let res = this.parse(input, new_str, next_chord, score, pos)
 
                 if (res.length > 0) return [str].concat(res)
             }
@@ -152,8 +209,18 @@ class CFG2 {
     parse_master = (input) => {
         this.DP = {}
 
+        let max_score = 0
 
-        let parsed = this.parse(input.split(' '),null,null)
+        let parsed = []
+        for(let i = 0; i < 1; i++){
+            let parsed2 = this.parse(input.split(' '),null,null)
+            if(this.score > max_score) {
+                max_score = this.score
+                parsed = parsed2
+            }
+        }
+        console.log("Max Score: ", max_score)
+
         // console.log(parsed)
 
         let chords = []
@@ -164,7 +231,7 @@ class CFG2 {
 
         chords.push(parsed[parsed.length-2][0])
 
-        return chords
+        return [chords, this.score]
     }
 }
 
@@ -203,9 +270,10 @@ function sample_shuffle(arr){
 
 }
 
-function reorder_rules(chord){
+function reorder_rules(pos, chord){
     // chord = 'I'
-    vect = chord_transitions[chord]
+    vect = chord_transitions[pos][chord]
+
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
@@ -231,24 +299,37 @@ let temp_rules = [
     ['I','0'],
     ['I','4'],
     ['I','7'],
+    //['I','11'],
+
     ['ii','2'],
     ['ii','5'],
     ['ii','9'],
+    //['ii','0'],
+
     ['iii','4'],
     ['iii','7'],
     ['iii','11'],
+    //['iii','2'],
+
     ['III','4'],
     ['III','8'],
     ['III','11'],
+
     ['IV','5'],
     ['IV','9'],
     ['IV','0'],
+    //['IV','4'],
+
     ['V','7'],
     ['V','11'],
     ['V','2'],
+    //['V','5'],
+
     ['vi','9'],
     ['vi','0'],
     ['vi','4'],
+    //['vi','4'],
+
     ['I','12'],
     ['ii','12'],
     ['iii','12'],
