@@ -137,12 +137,13 @@ function getNotesUsingTempo(intervals){
 }
 
 // Alternate way to get the melody using runlength
-const noteSecond = 499;
+const noteSecond = 500;
 function getNoteLengthFromTempo(tempo) {
     return 60/tempo * noteSecond
 }
 
 const negligibleLen = 100
+
 
 function cleanRunLength(runlength) {
     if(runlength.length <= 1) {
