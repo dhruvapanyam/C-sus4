@@ -4,7 +4,7 @@ piano = new Tone.Sampler({
     release: 80
 })
 pianoGain = new Tone.Gain().toMaster()
-pianoGain.gain.value = 0.6
+pianoGain.gain.value = 0.2
 piano.connect(pianoGain)
 
 metronome = new Tone.Sampler({
@@ -16,20 +16,38 @@ metronomeGain = new Tone.Gain().toMaster()
 metronomeGain.gain.value = 0.3
 metronome.connect(metronomeGain)
 
+lead = new Tone.Sampler({
+    'F#4': './../samples/Fsharp4v60.wav'
+},{
+    release: 3
+
+})
+
+leadGain = new Tone.Gain().toMaster()
+leadGain.gain.value = 0.6
+lead.connect(leadGain)
+
 // before connecting to master, we can connect it to filters and gains and other effects
 
 // ------------- BASIC GRAMMAR --------------
 
 const chord_notes = {
 
-
     'I' : [0,4,7],
     'ii' : [2,5,9],
     'iii' : [4,7,11],
-    // 'III' : [4,8,11],
+    'III' : [4,8,11],
     'IV' : [5,9,0],
     'V' : [7,11,2],
-    'vi' : [9,0,4]
+    'vi' : [9,0,4],
+
+    // 'I' : [0,4,7,11],
+    // 'ii' : [2,5,9,12],
+    // 'iii' : [4,7,11,14],
+    // // 'III' : [4,8,11],
+    // 'IV' : [5,9,12,16],
+    // 'V' : [7,11,14,17],
+    // 'vi' : [9,12,16,19]
 }
 
 const all_chords = ['I','ii','iii','IV','V','vi']
@@ -63,7 +81,7 @@ function playChord(chord,waittime=0,tone=null){
     }
     if (tone != null){
         //alert(tone)
-        piano.triggerAttackRelease(tone,"8n",Tone.now() + waittime)
+        lead.triggerAttackRelease(tone,"8n",Tone.now() + waittime)
     }
 }
 
@@ -149,7 +167,7 @@ function triggerMelodyInput(){
     for (let i=0; i<input_notes.length; i++){
         waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
         // arr = chord_notes[chords[i]]
-        piano.triggerAttackRelease(input_notes[i],"8n",Tone.now() + waiting_time)
+        lead.triggerAttackRelease(input_notes[i],"8n",Tone.now() + waiting_time)
         
     }
 }

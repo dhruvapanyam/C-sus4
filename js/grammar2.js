@@ -26,7 +26,7 @@ A -> I | ii | iii | IV | V | vi
 
 */
 
-const chord_names = ['I','ii','iii','IV','V','vi']
+const chord_names = ['I','ii', 'III', 'iii','IV','V','vi']
 
 
 chord_transitions = [{
@@ -183,7 +183,7 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
-                    score += chord_transitions[pos][prev_chord][next_chord_pos];
+                    score += transition_prob['sad']['4/4'][pos][prev_chord][next_chord_pos];
                 }
                 
             }
@@ -211,9 +211,12 @@ class CFG2 {
 
         let max_score = 0
 
+        input = "sad 4/4 ".concat(input)
         let parsed = []
         for(let i = 0; i < 1; i++){
+
             let parsed2 = this.parse(input.split(' '),null,null)
+
             if(this.score > max_score) {
                 max_score = this.score
                 parsed = parsed2
@@ -221,7 +224,7 @@ class CFG2 {
         }
         console.log("Max Score: ", max_score)
 
-        // console.log(parsed)
+        console.log(parsed)
 
         let chords = []
         for(let i=1; i<parsed.length;i++){
@@ -231,7 +234,7 @@ class CFG2 {
 
         chords.push(parsed[parsed.length-2][0])
 
-        return [chords, this.score]
+        return [chords.slice(2), this.score]
     }
 }
 
@@ -272,26 +275,35 @@ function sample_shuffle(arr){
 
 function reorder_rules(pos, chord){
     // chord = 'I'
-    vect = chord_transitions[pos][chord]
+    vect = transition_prob['sad']['4/4'][pos][chord]
 
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
 
 
-chord_set = new Set(['I','ii','iii','IV','V','vi'])
+chord_set = new Set(['I','ii','III', 'III','IV','V','vi'])
 // ----------------------------------------------------------------------------
-let temp_vars = ['U','B1','B2','B3','B4','A','I','ii','iii','IV','V','vi']
-let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12']
+let temp_vars = ['U','B1', 'B2','B3','B4', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start']
+let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', '4/4']
 let temp_rules = [
-    ['U','B1 B2 B3 B4'],
-    ['B1','I A A A'],
+    ['U', 'Happy'],
+    ['U', 'Sad'],
+    ['Happy', 'happy 4//4'],
+    ['Sad', 'sad 4//4'],
+    ['4//4', '4/4 Start'],
+    ['Start','B1 B2 B3 B4'],
+    //['Start','B11 B2 B3 B14'],
+    //['B01','I A A A'],
+    ['B1','vi A A A'],
     ['B2','A A A A'],
     ['B3','A A A A'],
-    ['B4','A A A I'],
+    //['B04','A A A I'],
+    ['B4','A A A vi'],
     ['A','I'],
     ['A','ii'],
     ['A','iii'],
+    ['A', 'III'],
     ['A','IV'],
     ['A','V'],
     ['A','vi'],
@@ -330,12 +342,6 @@ let temp_rules = [
     ['vi','4'],
     //['vi','4'],
 
-    ['I','12'],
-    ['ii','12'],
-    ['iii','12'],
-    ['IV','12'],
-    ['V','12'],
-    ['vi','12'],
 ]
 
 
