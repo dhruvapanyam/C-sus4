@@ -1,0 +1,39 @@
+.container {
+    height: 100%;
+    width: 70%;
+    margin-left: 15%;
+}
+
+.content-container {
+    margin-top: 10%;
+    width: 100%;
+    /* text-align: center; */
+}
+
+.input-container {
+    height: 50%;
+    width: 100%;
+}
+/* 
+.piano-div {
+    border: 1px solid;
+} */
+
+#keyboard {
+    display: inline-block;
+}
+
+
+
+.white-key {
+    width: 5.362%;
+    height: 415px;
+    /* border: 1px solid; */
+    margin-top: 10px;
+    float: left;
+    background-color: rgba(0,0,100,0);
+    bottom: 10px;
+    line-height: 42;
+    position: relative;
+    text-align: center;
+}

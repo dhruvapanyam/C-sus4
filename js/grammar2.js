@@ -165,10 +165,10 @@ class CFG2 {
             let shuf = false
             let temp_arr = this.rules[str[0]]
             if (prev_chord != null) {
-                if (str[0] == 'A') {
+                if (str[0] == 'A' && prev_chord != null) {
                     temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
-                    if(prev_chord == 'vi') 
-                        console.log(temp_arr.join(' '))
+                    // if(prev_chord == 'vi') 
+                    //     console.log(temp_arr.join(' '))
                     shuf = true
                 }
             }
@@ -183,7 +183,7 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
-                    score += transition_prob['sad']['4/4'][pos][prev_chord][next_chord_pos];
+                    score += transition_prob[STYLE]['4/4'][pos][prev_chord][next_chord_pos];
                 }
                 
             }
@@ -211,9 +211,9 @@ class CFG2 {
 
         let max_score = 0
 
-        input = "sad 4/4 ".concat(input)
+        input = STYLE.concat(" 4/4 ".concat(input))
         let parsed = []
-        for(let i = 0; i < 1; i++){
+        for(let i = 0; i < 10; i++){
 
             let parsed2 = this.parse(input.split(' '),null,null)
 
@@ -275,31 +275,35 @@ function sample_shuffle(arr){
 
 function reorder_rules(pos, chord){
     // chord = 'I'
-    vect = transition_prob['sad']['4/4'][pos][chord]
+    vect = transition_prob[STYLE]['4/4'][pos][chord]
 
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
 
+var STYLE = 'happy'
+
 
 chord_set = new Set(['I','ii','III', 'III','IV','V','vi'])
 // ----------------------------------------------------------------------------
-let temp_vars = ['U','B1', 'B2','B3','B4', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start']
+let temp_vars = ['U','B01','B11', 'B2','B3','B04','B14', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start1','Start2']
 let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', '4/4']
 let temp_rules = [
     ['U', 'Happy'],
     ['U', 'Sad'],
-    ['Happy', 'happy 4//4'],
-    ['Sad', 'sad 4//4'],
-    ['4//4', '4/4 Start'],
-    ['Start','B1 B2 B3 B4'],
-    //['Start','B11 B2 B3 B14'],
-    //['B01','I A A A'],
-    ['B1','vi A A A'],
+    ['Happy', 'happy 4/4 Start1'],
+    ['Sad', 'sad 4/4 Start2'],
+    // ['4//4', '4/4 Start'],
+    ['Start1','B01 B2 B3 B04'],
+    ['Start2','B11 B2 B3 B14'],
+    ['B01','I A A A'],
+    ['B01','A A A A'],
+    ['B11','vi A A A'],
+    ['B11','A A A A'],
     ['B2','A A A A'],
     ['B3','A A A A'],
-    //['B04','A A A I'],
-    ['B4','A A A vi'],
+    ['B04','A A A A'],
+    ['B14','A A A A'],
     ['A','I'],
     ['A','ii'],
     ['A','iii'],

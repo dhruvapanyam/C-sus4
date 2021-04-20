@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <title>Harmonizer</title>
+
+    <script src="./js/canvasjs.min.js"></script>
+    <script src="./js/tone.js"></script>
+</head>
+<body>
+    <div id="site-container" class="container">
+        <div class='content-container'>
+
+            <div class='input-container'>
+                <div class="input-div">
+                    <input class="input_element" type="text" id="melody-input">
+                </div>
+                <div class="piano-div" style="width:100%;" >
+                    <div id="keyboard" style="width: 100%; display: none;">
+                    <img src="./imgs/piano.png" style="width: 66.5%; margin-left: 0; position: absolute;"/>
+                        <div id="C3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">Z</div>
+                        <div id="D3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">X</div>
+                        <div id="E3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">C</div>
+                        <div id="F3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">V</div>
+                        <div id="G3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">B</div>
+                        <div id="A3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">N</div>
+                        <div id="B3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">M</div>
+                        <div id="C4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">Q</div>
+                        <div id="D4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">W</div>
+                        <div id="E4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">E</div>
+                        <div id="F4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">R</div>
+                        <div id="G4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">T</div>
+                        <div id="A4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">Y</div>
+                        <div id="B4" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key" style="width:5.23%">U</div>
+                        <div id="C5" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">I</div>
+                        <div id="D5" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">O</div>
+                        <div id="E5" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">P</div>
+                        <div id="F5" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">[</div>
+                        <div id="G5" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key" style="width:3.6%">]</div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            <div class='input-container'>
+                <div class="input-div">
+                    <input class="input_element" type="text" id="chords-output">
+                </div>
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="fixed-action-btn" style="right:86%;top:13%;">
+            <a class="btn-floating btn-large red">
+              <i id="main-format" class="large material-icons">mode_edit</i>
+            </a>
+            <ul>
+              <li><a id="fab-first" class="btn-floating yellow darken-1"><i onclick="switchFormat(this)" class="material-icons">piano</i></a></li>
+              <li><a id="fab-second" class="btn-floating green"><i onclick="switchFormat(this)" class="material-icons">mic</i></a></li>
+            </ul>
+          </div>
+        <!-- <div id="input-container"></div>
+            <label>INPUT MELODY:</label>
+            <input type="text" value="G4 C4 A4 F4 E4 C4 D4 D4 G4 C4 A4 B4 C5 D5 C5 C4" id="melody-input" size="50">
+        </div>
+
+        <div id="record-container">
+            <button id="record-notes" onclick="recordMelodyInput()">RECORD</button>
+            <button id="stop-record-notes" onclick="stopRecordingMelodyInput()">STOP</button>
+        </div>
+
+        <div id="iplay-container">
+            <button id="play-notes" onclick="triggerMelodyInput()">PLAY</button>
+        </div>
+
+        <div id="countdown-container">
+            <label id="countdown"></label>
+        </div>
+
+        
+
+        <div id="compute-container">
+            <button id="compute-chords" onclick="createAccompaniment()">COMPUTE</button>
+        </div>
+        
+
+        <div id="output-container">
+            <label>OUTPUT CHORDS:</label>
+            <input type="text" value="I vi V IV vi ii iii V I iii vi V IV iii V I" id="chords-output" size="50">
+        </div>
+
+        <div id="play-container">
+            <button id="play-chords" onclick="triggerChordOutput()">PLAY</button>
+        </div>
+
+        <div id="tempo-container">
+            <label>TEMPO:</label>
+            <input type="range" id="chords-tempo" min=50 max=200 value=120 oninput="changeTempo(this.value)">
+            <label id="tempo-display">120</label>
+            <button id="metronome" onclick="startMetronome(4)">METRONOME</button>
+
+        </div>
+
+        <div id="detected-note">
+            <label>DETECTED NOTE:</label>
+            <label id="detected-note-display"></label>
+        </div> -->
+
+    </div>
+
+    
+
+</body>
+
+<script src="./js/script.js"></script>
+<script src="./js/grammar.js"></script>
+<script src="./js/parse.js"></script>
+<script src="./js/chord_transitions.js"></script>
+<script src="./js/grammar2.js"></script>
+<link rel="stylesheet" href="./css/create.css">
+</html>
+
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var options = {direction:'bottom'}
+    var instances = M.FloatingActionButton.init(elems, options);
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('.fixed-action-btn').floatingActionButton();
+  });
+
+</script>

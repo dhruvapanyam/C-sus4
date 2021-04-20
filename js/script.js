@@ -4,7 +4,7 @@ piano = new Tone.Sampler({
     release: 80
 })
 pianoGain = new Tone.Gain().toMaster()
-pianoGain.gain.value = 0.2
+pianoGain.gain.value = 0.6
 piano.connect(pianoGain)
 
 metronome = new Tone.Sampler({
@@ -19,7 +19,8 @@ metronome.connect(metronomeGain)
 lead = new Tone.Sampler({
     'F#4': './../samples/Fsharp4v60.wav'
 },{
-    release: 3
+    release: 3,
+    attack:0.1
 
 })
 
@@ -179,3 +180,84 @@ function changeTempo(tempo){
 }
 
 
+
+
+
+
+function playNote(note){
+    // console.log(playing.has(note))
+    if (playing.has(note)) return
+    lead.triggerAttackRelease(note,'8n')
+}
+
+function darkenPianoKey (note) {
+    document.getElementById(note).style.backgroundColor = 'rgba(0,0,100,0.3)';
+    playing.add(note)
+}
+
+function lightenPianoKey (note) {
+    document.getElementById(note).style.backgroundColor = 'rgba(0,0,100,0)' ;
+    playing.delete(note)
+
+}
+
+
+document.addEventListener('keydown',function(k){
+    k = k.key
+    let whites = document.getElementsByClassName('white-key')
+    for(let white of whites){
+        if (white.innerHTML.toLowerCase() == k.toLowerCase())
+        {
+            playNote(white.id)
+            darkenPianoKey(white.id)
+            return
+        }
+    }
+})
+
+var playing = new Set()
+
+document.addEventListener('keyup',function(k){
+    k = k.key
+    let whites = document.getElementsByClassName('white-key')
+    for(let white of whites){
+        if (white.innerHTML.toLowerCase() == k.toLowerCase())
+        {
+            if(playing.has(white.id)){
+                lightenPianoKey(white.id)
+            }
+            return
+        }
+    }
+})
+
+
+
+function switchFormat(chosen) {
+    console.log('switching')
+    let main = document.getElementById('main-format')
+    let temp = main.innerHTML
+    main.innerHTML = chosen.innerHTML
+    chosen.innerHTML = temp
+
+    if (main.innerHTML == 'piano') {
+        document.getElementById('keyboard').style.display = 'block'
+    }
+    else {
+        document.getElementById('keyboard').style.display = 'none'
+    }
+}
+
+
+window.addEventListener('resize',function(e){
+    let w = window.innerWidth
+
+    w = w*0.7
+    h = w * 630 / 2000
+
+    let keys = document.getElementsByClassName('white-key')
+    for(let key of keys){
+        key.style.height = String(h)+'px'
+        // key.style.lineHeight = 415 * 42 / h
+    }
+})
