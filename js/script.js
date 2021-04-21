@@ -299,7 +299,8 @@ var canvas = document.getElementById("piano-canvas");
 canvas.style.border = '1px solid'
 var ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth * 0.7
+canvas.width = window.innerWidth * 0.6
+canvas.style.marginLeft = '7.5%'
 canvas.height = canvas.width * (0.325)
 
 
@@ -619,7 +620,7 @@ function clearInputCanvas() {
 // ----------------------------------------------------------
 
 window.addEventListener('resize',function(e){
-    canvas.width = window.innerWidth * 0.7
+    canvas.width = window.innerWidth * 0.6
     canvas.height = canvas.width * (0.325)
 
     icanvas.width = window.innerWidth * 0.7
