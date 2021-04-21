@@ -15,7 +15,7 @@
     <script src="./js/canvasjs.min.js"></script>
     <script src="./js/tone.js"></script>
 </head>
-<body>
+<body style="background-image: url('./imgs/bg1.jpg'); background-size: cover; margin-top: 0%;">
     <div id="site-container" class="container">
         <div class='content-container'>
 
@@ -23,7 +23,7 @@
                 <div class="input-div">
                     <input class="input_element" type="text" id="melody-input">
                 </div>
-                <div class="piano-div" style="width:100%;" >
+                <!-- <div class="piano-div" style="width:100%;" >
                     <div id="keyboard" style="width: 100%; display: none;">
                     <img src="./imgs/piano.png" style="width: 66.5%; margin-left: 0; position: absolute;"/>
                         <div id="C3" onmouseover="darkenPianoKey(this.id)" onmouseout="lightenPianoKey(this.id)" onclick="playNote(this.id)"class="white-key">Z</div>
@@ -48,13 +48,22 @@
                         
                         
                     </div>
+                </div> -->
+
+
+
+                <canvas id="input-canvas"></canvas>
+                <div style="width: 100%;height:20%;text-align: center; margin: 1%;">
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="saveInputCanvas()"><i class="material-icons">save</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="playInputCanvas()"><i class="material-icons">play_arrow</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="recordInputCanvas()"><i class="material-icons">fiber_manual_record</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="clearInputCanvas()"><i class="material-icons">delete</i></button>
+
                 </div>
+                <canvas id="piano-canvas"></canvas>
+                <img id="piano-img" src="./imgs/piano.png" style="visibility: hidden;">
             </div>
-            <div class='input-container'>
-                <div class="input-div">
-                    <input class="input_element" type="text" id="chords-output">
-                </div>
-            </div>
+            
 
         </div>
 
