@@ -4,7 +4,7 @@ piano = new Tone.Sampler({
     release: 80
 })
 pianoGain = new Tone.Gain().toMaster()
-pianoGain.gain.value = 0.6
+pianoGain.gain.value = 0.3
 piano.connect(pianoGain)
 
 metronome = new Tone.Sampler({
@@ -25,7 +25,7 @@ lead = new Tone.Sampler({
 })
 
 leadGain = new Tone.Gain().toMaster()
-leadGain.gain.value = 0.6
+leadGain.gain.value = 0.3
 lead.connect(leadGain)
 
 // before connecting to master, we can connect it to filters and gains and other effects
@@ -56,7 +56,6 @@ const all_chords = ['I','ii','iii','IV','V','vi']
 var OCTAVE = 3
 const bar_length = 4
 const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]
-var TEMPO = 120
 
 function assignOctave(num,oct = OCTAVE){
     oct += parseInt(num/ 12)
@@ -74,28 +73,28 @@ function tempo_to_time(tempo){
 
 // ------------------------------------------
 
-function playChord(chord,waittime=0,tone=null){
-    // format: chord = array
-    // trigger piano to play the 3 notes at the same time
-    for (note of chord){
-        piano.triggerAttackRelease(assignOctave(note),"8n",Tone.now() + waittime)
-    }
-    if (tone != null){
-        //alert(tone)
-        lead.triggerAttackRelease(tone,"8n",Tone.now() + waittime)
-    }
-}
+// function playChord(chord,waittime=0,tone=null){
+//     // format: chord = array
+//     // trigger piano to play the 3 notes at the same time
+//     for (note of chord){
+//         piano.triggerAttackRelease(assignOctave(note),"8n",Tone.now() + waittime)
+//     }
+//     if (tone != null){
+//         //alert(tone)
+//         lead.triggerAttackRelease(tone,"8n",Tone.now() + waittime)
+//     }
+// }
 
-function playChordProgression(chords,tones=null){
-    // format: chords = ['I','ii',...]
-    // trigger piano to play the chords
-    for (let i=0; i<chords.length; i++){
-        waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
-        arr = chord_notes[chords[i]]
-        playChord(arr,waiting_time,tones[i])
-    }
+// function playChordProgression(chords,tones=null){
+//     // format: chords = ['I','ii',...]
+//     // trigger piano to play the chords
+//     for (let i=0; i<chords.length; i++){
+//         waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
+//         arr = chord_notes[chords[i]]
+//         playChord(arr,waiting_time,tones[i])
+//     }
 
-}
+// }
 
 function createAccompaniment(){
     // cuurent format of melody: 4 notes
@@ -126,6 +125,8 @@ function createAccompaniment(){
         return
     }
 
+    return progression
+
 
 
 
@@ -152,37 +153,65 @@ function notesToNums(notes) {
     
 }
 
-function triggerChordOutput(){
-    output = document.getElementById('chords-output')
-    output_nums = output.value.split(' ')
-    input = document.getElementById('melody-input')
-    //input = notesToNums(input.value)
-    input_nums = input.value.split(' ')
-    playChordProgression(output_nums,input_nums)
-}
+// function triggerChordOutput(){
+//     output = document.getElementById('chords-output')
+//     output_nums = output.value.split(' ')
+//     input = document.getElementById('melody-input')
+//     //input = notesToNums(input.value)
+//     input_nums = input.value.split(' ')
+//     playChordProgression(output_nums,input_nums)
+// }
 
-function triggerMelodyInput(){
-    input = document.getElementById('melody-input')
-    //input = notesToNums(input.value)
-    input_notes = input.value.split(' ')
-    for (let i=0; i<input_notes.length; i++){
-        waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
-        // arr = chord_notes[chords[i]]
-        lead.triggerAttackRelease(input_notes[i],"8n",Tone.now() + waiting_time)
+// function triggerMelodyInput(){
+//     input = document.getElementById('melody-input')
+//     //input = notesToNums(input.value)
+//     input_notes = input.value.split(' ')
+//     for (let i=0; i<input_notes.length; i++){
+//         waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
+//         // arr = chord_notes[chords[i]]
+//         lead.triggerAttackRelease(input_notes[i],"8n",Tone.now() + waiting_time)
         
+//     }
+// }
+
+Tone.Transport.bpm.value = 90
+Tone.Transport.loop = false
+Tone.Transport.loopEnd = "4:0:0"
+
+
+function tempoSchedule(time){
+    cursor_position += 100/(16 * regularity) 
+    // console.log(Tone.Transport.position)
+    if (cursor_position >= 100) {
+        cursor_position = 0
+        if(PIANO_RECORDING == true){
+            quantizeNotes()
+            PIANO_RECORDING = null
+        }
+        if(Tone.Transport.loop == false) Tone.Transport.stop()
     }
 }
+
+let regularity = 32
+var tempoEventID = Tone.Transport.scheduleRepeat(tempoSchedule,tempo_to_time(Tone.Transport.bpm.value)/regularity)
+Tone.Transport.scheduleRepeat(function(time){
+    console.log('now')
+},'0:1:0')
+// Tone.Transport.start()
 
 
 
 function changeTempo(tempo){
-    TEMPO = tempo;
-    document.getElementById('tempo-display').innerHTML = TEMPO
+    // TEMPO = tempo;
+    Tone.Transport.bpm.value = tempo
+    document.getElementById('tempo-value').innerHTML = '&nbsp;'+String(tempo)+'&nbsp;'
+
+
 }
 
 function startMetronome(n){
     for (let i=0; i<n; i++){
-        let waiting_time = i * tempo_to_time(TEMPO) // 2 seconds per chord
+        let waiting_time = i * tempo_to_time(Tone.Transport.bpm.value) // 2 seconds per chord
         // arr = chord_notes[chords[i]]
         metronome.triggerAttackRelease('C3',0.1,Tone.now() + waiting_time)
         
@@ -218,6 +247,7 @@ document.addEventListener('keydown',function(k){
                     startRecordingPiano()
                     recorded_piano = []
                     PIANO_RECORDING = true
+                    Tone.Transport.start()
                 }
                 if(PIANO_RECORDING == true){
                     last_piano_note = key.key
@@ -240,6 +270,7 @@ document.addEventListener('keydown',function(k){
                 if(PIANO_RECORDING == false){
                     startRecordingPiano()
                     PIANO_RECORDING = true
+                    Tone.Transport.start()
                 }
                 if(PIANO_RECORDING == true){
                     last_piano_note = key.key
@@ -299,8 +330,8 @@ var canvas = document.getElementById("piano-canvas");
 canvas.style.border = '1px solid'
 var ctx = canvas.getContext("2d");
 
-canvas.width = window.innerWidth * 0.6
-canvas.style.marginLeft = '7.5%'
+canvas.width = window.innerWidth * 0.5
+canvas.style.marginLeft = '15%'
 canvas.height = canvas.width * (0.325)
 
 
@@ -387,20 +418,23 @@ icanvas.width = window.innerWidth * 0.7
 icanvas.height = icanvas.width * 0.3
 
 var melody_notes = new Set()
+var computed_chords = []
 
-var cursor_moving = false
+var eventID = {}
+
+// var cursor_moving = false
 var cursor_position = 0
 
-function pushCursor(time=10){
-    // depending on the time, need to adjust
-    // TEMPO = 120 => 2 beat in 1 seconds = 1/8 progress
-    // so for 100ms, 1/80
-    let res = document.getElementById('melody-input').value.split(' ')
-    let dx = 1/80 * time * (1.02*TEMPO) / 120
-    cursor_position += dx
+// function pushCursor(time=10){
+//     // depending on the time, need to adjust
+//     // TEMPO = 120 => 2 beat in 1 seconds = 1/8 progress
+//     // so for 100ms, 1/80
+//     let res = document.getElementById('melody-input').value.split(' ')
+//     let dx = 1/80 * time * (1.02*TEMPO) / 120
+//     cursor_position += dx
 
-}
-var cursor_movement;
+// }
+// var cursor_movement;
 // var cursor_movement = setInterval(pushCursor,100)
 
 
@@ -439,6 +473,9 @@ function drawGrid(ctx=ictx,canvas=icanvas) {
 }
 
 var notenames = ['C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3','C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4']
+var reverse_notenames = {
+    'C3':0,'C#3':1,'D3':2,'D#3':3,'E3':4,'F3':5,'F#3':6,'G3':7,'G#3':8,'A3':9,'A#3':10,'B3':11,'C4':12,'C#4':13,'D4':14,'D#4':15,'E4':16,'F4':17,'F#4':18,'G4':19,'G#4':20,'A4':21,'A#4':22,'B4':23
+}
 function writeNotes(ctx=ictx,canvas=icanvas){
     let R = 24
     let C = 17
@@ -474,11 +511,21 @@ function tryAddingMelodyNote(x,y){
     if (col == 0) return
 
     if(melody_notes.has(num)){
+        Tone.Transport.clear(eventID[num])
+        delete eventID[num]
         melody_notes.delete(num)
         return
     }
+    col--;
+    let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
+    console.log(ticks)
+
     piano.triggerAttackRelease(notenames[R-row-1],500)
     melody_notes.add(num)
+    eventID[num] = Tone.Transport.schedule(function(time){
+        lead.triggerAttackRelease(notenames[R-row-1],0.5)
+        console.log(ticks)
+    },ticks)
     
 
 }
@@ -489,6 +536,15 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
 
     let w = canvas.width / C
     let h = canvas.height / R
+    ctx.fillStyle = '#db6969'
+    for(let i=0;i<computed_chords.length;i++){
+        let rows = chord_notes[computed_chords[i]]
+        let col = i+1
+        // console.log(obj)
+        for(let row of rows)
+            ctx.fillRect(col*w,(23-row)*h,w,h)
+    }
+
     ctx.fillStyle = '#3f9da6'
     for(let num of melody_notes.values()){
         let row = parseInt(num/C)
@@ -513,15 +569,10 @@ function ianimate(){
     drawGrid()
     writeNotes()
     fillNotes()
-    if (cursor_moving){
+    if (1 ||cursor_moving){
         if(cursor_position >= 100){
-            clearInterval(cursor_movement)
-            cursor_moving = false
-            cursor_position = 0
-            if(PIANO_RECORDING == true){
-                quantizeNotes()
-                PIANO_RECORDING = null
-            }
+            // cursor_position = 0
+            
         }
         ictx.strokeStyle = '#222222'
         ictx.beginPath()
@@ -570,9 +621,9 @@ function saveInputCanvas(){
 function playInputCanvas() {
     
     saveInputCanvas()
-    triggerMelodyInput()
-    cursor_moving = true
-    cursor_movement = setInterval(pushCursor,10)
+
+    Tone.Transport.start()
+
 }
 
 
@@ -582,11 +633,6 @@ function recordInputCanvas() {
 
 function startRecordingPiano() {
     PIANO_RECORDING = true
-    cursor_moving = true
-    cursor_movement = setInterval(pushCursor,10)
-    
-    // startMetronome(16)
-
 }
 
 
@@ -601,6 +647,14 @@ function quantizeNotes(ctx=ictx,canvas=icanvas) {
         let row = 23-j;
         num = row * 17 + quantizedcol + 1
         melody_notes.add(num)
+
+        let col = num % 17
+        col--
+        let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
+        console.log(recorded_piano[i][0])
+        eventID[num] = Tone.Transport.schedule(function(time){
+            lead.triggerAttackRelease(notenames[23-row],0.5)
+        },ticks)
     }
     recorded_piano = []
     saveInputCanvas()
@@ -613,6 +667,15 @@ function interact(x,y){
 
 function clearInputCanvas() {
     melody_notes = new Set()
+    computed_chords = []
+    for(let num of Object.keys(eventID)){
+        Tone.Transport.clear(eventID[num])
+    }
+    eventID = {}
+    for(let num of chordsID){
+        Tone.Transport.clear(num)
+    }
+    chordsID = []
     document.getElementById('melody-input').value = ''
 }
 
@@ -620,7 +683,7 @@ function clearInputCanvas() {
 // ----------------------------------------------------------
 
 window.addEventListener('resize',function(e){
-    canvas.width = window.innerWidth * 0.6
+    canvas.width = window.innerWidth * 0.5
     canvas.height = canvas.width * (0.325)
 
     icanvas.width = window.innerWidth * 0.7
@@ -639,4 +702,33 @@ function getMousePosition(canvas, event) {
     let y = event.clientY - rect.top;
     // console.log("Coordinate x: " + x, "Coordinate y: " + y);
     return [x,y]
+}
+
+
+var chordsID = []
+
+function computeCanvas() {
+    saveInputCanvas()
+    computed_chords = createAccompaniment()
+    chordsID = []
+    for(let i=0;i<computed_chords.length;i++){
+        let ticks = String(parseInt(i/4)) + ':' + String(i%4) + ':0'
+        chordsID.push(Tone.Transport.schedule(function(time){
+            for(let note of chord_notes[computed_chords[i]])
+                piano.triggerAttackRelease(assignOctave(note,OCTAVE + parseInt(note/12)),0.5)
+        },ticks))
+    }
+}
+
+
+
+function pauseInputCanvas(){
+    Tone.Transport.pause()
+}
+
+function stopInputCanvas(){
+    Tone.Transport.stop()
+    cursor_position = 0
+    quantizeNotes()
+    PIANO_RECORDING = null
 }

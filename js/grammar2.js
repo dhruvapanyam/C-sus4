@@ -207,13 +207,18 @@ class CFG2 {
     }
 
     parse_master = (input) => {
+        let stylevalue = document.getElementById('style-select').value
+        if (stylevalue != ''){
+            STYLE = stylevalue
+        }
         this.DP = {}
 
         let max_score = 0
 
         input = STYLE.concat(" 4/4 ".concat(input))
         let parsed = []
-        for(let i = 0; i < 10; i++){
+        let trials =parseInt(document.getElementById('trials-input').value)
+        for(let i = 0; i < trials; i++){
 
             let parsed2 = this.parse(input.split(' '),null,null)
 
@@ -302,7 +307,9 @@ let temp_rules = [
     ['B11','A A A A'],
     ['B2','A A A A'],
     ['B3','A A A A'],
+    ['B04','A A A I'],
     ['B04','A A A A'],
+    ['B14','A A A vi'],
     ['B14','A A A A'],
     ['A','I'],
     ['A','ii'],
