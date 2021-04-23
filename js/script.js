@@ -174,13 +174,27 @@ function notesToNums(notes) {
 //     }
 // }
 
+play_metronome = false
+
 Tone.Transport.bpm.value = 90
 Tone.Transport.loop = false
 Tone.Transport.loopEnd = "4:0:0"
 
+function toggleMetronome(val){
+    play_metronome = val
+}
+
+function toggleLoop(val){
+    Tone.Transport.loop = val
+}
 
 function tempoSchedule(time){
-    cursor_position += 100/(16 * regularity) 
+    if (play_metronome){
+        if(cursor_position % (100/16) == 0)
+            metronome.triggerAttackRelease('C3','+0')
+    }
+    cursor_position += 100/(16 * regularity)
+    
     // console.log(Tone.Transport.position)
     if (cursor_position >= 100) {
         cursor_position = 0
@@ -194,9 +208,9 @@ function tempoSchedule(time){
 
 let regularity = 32
 var tempoEventID = Tone.Transport.scheduleRepeat(tempoSchedule,tempo_to_time(Tone.Transport.bpm.value)/regularity)
-Tone.Transport.scheduleRepeat(function(time){
-    console.log('now')
-},'0:1:0')
+// Tone.Transport.scheduleRepeat(function(time){
+//     console.log('now')
+// },'0:1:0')
 // Tone.Transport.start()
 
 
@@ -417,6 +431,16 @@ var ictx = icanvas.getContext('2d')
 icanvas.width = window.innerWidth * 0.7
 icanvas.height = icanvas.width * 0.3
 
+ccanvas = document.getElementById('chord-canvas')
+cctx = ccanvas.getContext('2d')
+ccanvas.width = window.innerWidth * 0.7
+ccanvas.height = icanvas.height / 17
+
+mcanvas = document.getElementById('melody-canvas')
+mctx = mcanvas.getContext('2d')
+mcanvas.width = window.innerWidth * 0.7
+mcanvas.height = icanvas.height / 17
+
 var melody_notes = new Set()
 var computed_chords = []
 
@@ -468,8 +492,38 @@ function drawGrid(ctx=ictx,canvas=icanvas) {
         ctx.moveTo(i*canvas.width/C,0)
         ctx.lineTo(i*canvas.width/C,canvas.height)
         ctx.stroke()
+
+        if(i==0) continue
+        cctx.beginPath()
+        cctx.moveTo(i*canvas.width/C,0)
+        cctx.lineTo(i*canvas.width/C,ccanvas.height)
+        cctx.stroke()
+
+        mctx.beginPath()
+        mctx.moveTo(i*canvas.width/C,0)
+        mctx.lineTo(i*canvas.width/C,ccanvas.height)
+        mctx.stroke()
     }
-    ictx.stroke()
+    ctx.stroke()
+
+
+    cctx.beginPath()
+    cctx.moveTo(canvas.width/C,0)
+    cctx.lineTo(ccanvas.width,0)
+    cctx.lineTo(ccanvas.width,ccanvas.height)
+    cctx.lineTo(canvas.width/C,ccanvas.height)
+    cctx.lineTo(canvas.width/C,0)
+    cctx.stroke()
+
+    mctx.beginPath()
+    mctx.moveTo(canvas.width/C,0)
+    mctx.lineTo(ccanvas.width,0)
+    mctx.lineTo(ccanvas.width,ccanvas.height)
+    mctx.lineTo(canvas.width/C,ccanvas.height)
+    mctx.lineTo(canvas.width/C,0)
+    mctx.stroke()
+
+
 }
 
 var notenames = ['C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3','C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4']
@@ -543,6 +597,12 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
         // console.log(obj)
         for(let row of rows)
             ctx.fillRect(col*w,(23-row)*h,w,h)
+        
+        cctx.fillStyle = '#FFFFFF'
+        cctx.textAlign = 'center'
+        // cctx.
+        // console.log(computed_chords[i])
+        cctx.fillText(computed_chords[i],(col + 0.5)*w,h)   
     }
 
     ctx.fillStyle = '#3f9da6'
@@ -551,6 +611,10 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
         let col = num%C
         // console.log(obj)
         ctx.fillRect(col*w,row*h,w,h)
+
+        mctx.fillStyle = '#FFFFFF'
+        mctx.textAlign = 'center'
+        mctx.fillText(notenames[23-row],(col + 0.5)*w,h)   
     }
 
     for(let pair of recorded_piano){
@@ -566,6 +630,16 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
 function ianimate(){
     ictx.fillStyle = '#BBBBBB'
     ictx.fillRect(0,0,icanvas.width, icanvas.height)
+
+    cctx.fillStyle = '#676767'
+    cctx.fillRect(ccanvas.width/17,0,ccanvas.width*16/17, ccanvas.height)
+    cctx.fillStyle = '#6ac4cc'
+    cctx.fillRect(0,0,ccanvas.width/17, ccanvas.height)
+
+    mctx.fillStyle = '#676767'
+    mctx.fillRect(ccanvas.width/17,0,ccanvas.width*16/17, ccanvas.height)
+    mctx.fillStyle = '#6ac4cc'
+    mctx.fillRect(0,0,ccanvas.width/17, ccanvas.height)
     drawGrid()
     writeNotes()
     fillNotes()
@@ -688,6 +762,12 @@ window.addEventListener('resize',function(e){
 
     icanvas.width = window.innerWidth * 0.7
     icanvas.height = icanvas.width * (0.325)
+
+    ccanvas.width = window.innerWidth * 0.7
+    ccanvas.height = icanvas.height /17
+
+    mcanvas.width = window.innerWidth * 0.7
+    mcanvas.height = icanvas.height /17
 })
 
 window.addEventListener('mousedown',(e) => {
@@ -709,11 +789,13 @@ var chordsID = []
 
 function computeCanvas() {
     saveInputCanvas()
+    computed_chords = []
     computed_chords = createAccompaniment()
     chordsID = []
     for(let i=0;i<computed_chords.length;i++){
         let ticks = String(parseInt(i/4)) + ':' + String(i%4) + ':0'
         chordsID.push(Tone.Transport.schedule(function(time){
+            if(computed_chords[i] == undefined) return
             for(let note of chord_notes[computed_chords[i]])
                 piano.triggerAttackRelease(assignOctave(note,OCTAVE + parseInt(note/12)),0.5)
         },ticks))
@@ -732,3 +814,4 @@ function stopInputCanvas(){
     quantizeNotes()
     PIANO_RECORDING = null
 }
+

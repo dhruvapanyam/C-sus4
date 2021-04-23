@@ -23,7 +23,12 @@
                 <div class="input-div">
                     <input class="input_element" type="text" id="melody-input" style="background-color: rgba(0,0,0,0.1);">
                 </div>
+                <canvas id="melody-canvas" class="z-depth-5" style="margin-right: 15%;"></canvas>
                 <canvas id="input-canvas" class="z-depth-5" style="margin-right: 15%;"></canvas>
+                <canvas id="chord-canvas" class="z-depth-5" style="margin-right: 15%;"></canvas>
+
+
+
                 <div style="width: 100%;height:20%;text-align: center; margin: 1%;">
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="saveInputCanvas()"><i class="material-icons">save</i></button>
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="playInputCanvas()"><i class="material-icons">play_arrow</i></button>
@@ -31,18 +36,30 @@
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="stopInputCanvas()"><i class="material-icons">stop</i></button>
                     <!-- <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="InputCanvas()"><i class="material-icons">stop</i></button> -->
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="recordInputCanvas()"><i class="material-icons">fiber_manual_record</i></button>
-                    <label style="color: black">TEMPO: &nbsp;</label>
-                    <input type="range" min=30 max=150 value=90 oninput="changeTempo(this.value)" style="width: 20%;">
-                    <label style="color: black;" id="tempo-value">90</label>
-                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="startMetronome(4)"><i class="material-icons">speed</i></button>
+                    <span style="color: black">Tempo: &nbsp;</span>
+                    <input type="range" min=30 max=150 value=90 oninput="changeTempo(this.value)" style="width: 15%;">
+                    <span style="color: black;" id="tempo-value">90</span>
+                    <!-- <label style="color: black;" id="tempo-value">                    &nbsp; METRONOME: &nbsp;                    </label> -->
+                    
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="startMetronome(4)"><i class="material-icons">hearing</i></button>
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="clearInputCanvas()"><i class="material-icons">delete</i></button>
 
                 </div>
+                <div style="width: 100%; text-align: center;">
+                  <label style="color: black;">
+                    <input type="checkbox" onchange="toggleMetronome(this.checked)" />
+                    <span style="color:black">Metronome</span>
+                  </label>
+                  <label style="color: black; margin-left: 3%">
+                    <input type="checkbox" onchange="toggleLoop(this.checked)" />
+                    <span style="color:black">Loop</span>
+                  </label>
+                </div>
                 <div style="width: 100%;height:20%;text-align: center; margin: 1%;display: inline-block;">
-                    <div class="input-field col s12" style="width: 15%;margin-left: 20%;padding-left: 20px; float: left;background-color: rgba(0,0,0,0.1);">
+                    <div class="input-field col s12" style="width: 20%;margin-left: 20%;padding-left: 20px; float: left;background-color: rgba(0,0,0,0.1);">
                         <select id="style-select">
                           <option value="" disabled selected>Choose style</option>
-                          <option value="happy">Happy</option>
+                          <option value="happy">Happy (default)</option>
                           <option value="sad">Sad</option>
                           <option value="jazz">Jazz</option>
                         </select>
