@@ -4,63 +4,69 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melody Harmonizer</title>
-<script src="./js/canvasjs.min.js"></script>
-<script src="./js/tone.js"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <title>COMPMASTER</title>
 </head>
-<body>
-    <div id="site-container" class="container">
-        <div id="input-container"></div>
-            <label>INPUT MELODY:</label>
-            <input type="text" value="G4 C4 A4 F4 E4 C4 D4 D4 G4 C4 A4 B4 C5 D5 C5 C4" id="melody-input" size="50">
-        </div>
-
-        <div id="record-container">
-            <button id="record-notes" onclick="recordMelodyInput()">RECORD</button>
-            <button id="stop-record-notes" onclick="stopRecordingMelodyInput()">STOP</button>
-        </div>
-
-        <div id="iplay-container">
-            <button id="play-notes" onclick="triggerMelodyInput()">PLAY</button>
-        </div>
-
-        <div id="countdown-container">
-            <label id="countdown"></label>
-        </div>
-
-        
-
-        <div id="compute-container">
-            <button id="compute-chords" onclick="createAccompaniment()">COMPUTE</button>
-        </div>
-        
-
-        <div id="output-container">
-            <label>OUTPUT CHORDS:</label>
-            <input type="text" value="I vi V IV vi ii iii V I iii vi V IV iii V I" id="chords-output" size="50">
-        </div>
-
-        <div id="play-container">
-            <button id="play-chords" onclick="triggerChordOutput()">PLAY</button>
-        </div>
-
-        <div id="tempo-container">
-            <label>TEMPO:</label>
-            <input type="range" id="chords-tempo" min=50 max=200 value=120 oninput="changeTempo(this.value)">
-            <label id="tempo-display">120</label>
-            <button id="metronome" onclick="startMetronome(4)">METRONOME</button>
-
-        </div>
-
-        <div id="detected-note">
-            <label>DETECTED NOTE:</label>
-            <label id="detected-note-display"></label>
+<body style="background-image: url('./imgs/bg1.jpg'); background-size: cover;">
+    <div class="site-container">
+        <div class='container'>
+            <div class="header-text-container">
+                COMPMASTER
+            </div>
+            <div class="navigate-btns-container">
+                <form class="navigate-btn-div" action='/how_to.html'>
+                    <button type="submit" class='waves-effect waves-light btn-large brown z-depth-5'>HOW TO</button>
+                </form>
+                <form class="navigate-btn-div" action='/create.html'>
+                    <button type="submit" class='waves-effect waves-light btn-large brown z-depth-5'>GO</button>
+                </form>
+                <form class="navigate-btn-div" action='/about.html'>
+                    <button type="submit" class='waves-effect waves-light btn-large brown z-depth-5'>ABOUT</button>
+                </form>
+            </div>
         </div>
 
     </div>
-    <div id="chartContainer" style="height: 92%;width: 100%"></div>
 </body>
+</html>
 
+<style>
+
+body {
+    font-family: 'Josefin Sans', sans-serif;
+}
+
+.site-container {
+    margin-left: 25%;
+    width: 50%;
+    height: 100%;
+    text-align: center;
+}
+
+.header-text-container {
+    margin-top: 20%;
+    margin-bottom: 20%;
+    font-size: 100px;
+}
+
+.navigate-btns-container {
+    text-align: center;
+}
+
+.navigate-btn-div {
+    display: inline;
+    margin: 2%
+}
+
+.navigate-btn {
+    /* font-size: 20px; */
+    /* width: 20%; */
+}
+
+<<<<<<< HEAD
 <script src="./js/jazz_parse.js"></script>
 <script src="./js/script.js"></script>
 <script src="./js/grammar.js"></script>
@@ -68,3 +74,6 @@
 <script src="./js/chord_transitions.js"></script>
 <script src="./js/grammar2.js"></script>
 </html>
+=======
+</style>
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b

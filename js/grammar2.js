@@ -165,10 +165,15 @@ class CFG2 {
             let shuf = false
             let temp_arr = this.rules[str[0]]
             if (prev_chord != null) {
-                if (str[0] == 'A') {
+                if (str[0] == 'A' && prev_chord != null) {
                     temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
+<<<<<<< HEAD
                     if(prev_chord == 'vi') 
                         //console.log(temp_arr.join(' '))
+=======
+                    // if(prev_chord == 'vi') 
+                    //     console.log(temp_arr.join(' '))
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
                     shuf = true
                 }
             }
@@ -183,7 +188,11 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
+<<<<<<< HEAD
                     score += transition_prob['happy']['4/4'][pos][prev_chord][next_chord_pos];
+=======
+                    score += transition_prob[STYLE]['4/4'][pos][prev_chord][next_chord_pos];
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
                 }
                 
             }
@@ -207,14 +216,26 @@ class CFG2 {
     }
 
     parse_master = (input) => {
+        let stylevalue = document.getElementById('style-select').value
+        if (stylevalue != ''){
+            STYLE = stylevalue
+        }
         this.DP = {}
 
         let max_score = 0
 
+<<<<<<< HEAD
         input = "happy 4/4 ".concat(input)
         let parsed = []
         for(let i = 0; i < 100; i++){
             
+=======
+        input = STYLE.concat(" 4/4 ".concat(input))
+        let parsed = []
+        let trials =parseInt(document.getElementById('trials-input').value)
+        for(let i = 0; i < trials; i++){
+
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
             let parsed2 = this.parse(input.split(' '),null,null)
             if(this.score > max_score) {
                 max_score = this.score
@@ -274,20 +295,27 @@ function sample_shuffle(arr){
 
 function reorder_rules(pos, chord){
     // chord = 'I'
+<<<<<<< HEAD
     vect = transition_prob['happy']['4/4'][pos][chord]
+=======
+    vect = transition_prob[STYLE]['4/4'][pos][chord]
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
 
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
 
+var STYLE = 'happy'
+
 
 chord_set = new Set(['I','ii','III', 'III','IV','V','vi'])
 // ----------------------------------------------------------------------------
-let temp_vars = ['U','B1', 'B2','B3','B4', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start']
+let temp_vars = ['U','B01','B11', 'B2','B3','B04','B14', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start1','Start2']
 let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', '4/4']
 let temp_rules = [
     ['U', 'Happy'],
     ['U', 'Sad'],
+<<<<<<< HEAD
     ['Happy', 'happy 4//4'],
     ['Sad', 'sad 4//4'],
     ['4//4', '4/4 Start'],
@@ -300,6 +328,23 @@ let temp_rules = [
     //['B04','A A A I'],
     ['B4','A A A I'],
 
+=======
+    ['Happy', 'happy 4/4 Start1'],
+    ['Sad', 'sad 4/4 Start2'],
+    // ['4//4', '4/4 Start'],
+    ['Start1','B01 B2 B3 B04'],
+    ['Start2','B11 B2 B3 B14'],
+    ['B01','I A A A'],
+    ['B01','A A A A'],
+    ['B11','vi A A A'],
+    ['B11','A A A A'],
+    ['B2','A A A A'],
+    ['B3','A A A A'],
+    ['B04','A A A I'],
+    ['B04','A A A A'],
+    ['B14','A A A vi'],
+    ['B14','A A A A'],
+>>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
     ['A','I'],
     ['A','ii'],
     ['A','iii'],

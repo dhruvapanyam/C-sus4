@@ -49,13 +49,6 @@ function array_to_runlength(arr){
 }
 
 
-function startMetronome(n=16){
-    
-    for (let i = 0; i < n; i++){
-        metronome.triggerAttackRelease('C3','8n',Tone.now() + i*tempo_to_time(TEMPO))
-    }
-}
-
 function maxIndex(arr){
     return arr.indexOf(Math.max(...arr))
 }

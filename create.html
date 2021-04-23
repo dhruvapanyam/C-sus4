@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@100&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <title>Harmonizer</title>
+
+    <script src="./js/canvasjs.min.js"></script>
+    <script src="./js/tone.js"></script>
+</head>
+<body style="background-image: url('./imgs/bg1.jpg'); background-size: cover; margin-top: 0%;">
+    <div id="site-container" class="container">
+        <div class='content-container'>
+
+            <div class='input-container'>
+                <div class="input-div">
+                    <input class="input_element" type="text" id="melody-input" style="background-color: rgba(0,0,0,0.1);">
+                </div>
+                <canvas id="input-canvas" class="z-depth-5" style="margin-right: 15%;"></canvas>
+                <div style="width: 100%;height:20%;text-align: center; margin: 1%;">
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="saveInputCanvas()"><i class="material-icons">save</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="playInputCanvas()"><i class="material-icons">play_arrow</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="pauseInputCanvas()"><i class="material-icons">pause</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="stopInputCanvas()"><i class="material-icons">stop</i></button>
+                    <!-- <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="InputCanvas()"><i class="material-icons">stop</i></button> -->
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="recordInputCanvas()"><i class="material-icons">fiber_manual_record</i></button>
+                    <label style="color: black">TEMPO: &nbsp;</label>
+                    <input type="range" min=30 max=150 value=90 oninput="changeTempo(this.value)" style="width: 20%;">
+                    <label style="color: black;" id="tempo-value">90</label>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="startMetronome(4)"><i class="material-icons">speed</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="clearInputCanvas()"><i class="material-icons">delete</i></button>
+
+                </div>
+                <div style="width: 100%;height:20%;text-align: center; margin: 1%;display: inline-block;">
+                    <div class="input-field col s12" style="width: 15%;margin-left: 20%;padding-left: 20px; float: left;background-color: rgba(0,0,0,0.1);">
+                        <select id="style-select">
+                          <option value="" disabled selected>Choose style</option>
+                          <option value="happy">Happy</option>
+                          <option value="sad">Sad</option>
+                          <option value="jazz">Jazz</option>
+                        </select>
+                      </div>
+                      <!-- <div class="input-field col s12" style="width: 15%;margin-left: 2%;padding-left: 20px; float: left;background-color: rgba(0,0,0,0.1);">
+                        <select>
+                          <option value="" disabled selected>Choose tone</option>
+                          <option value="happy">Piano</option>
+                          <option value="sad">Synth</option>
+                          <option value="jazz">Jazz</option>
+                        </select>
+                      </div> -->
+                      <label style="color: black; float: left; margin-top: 3%; margin-left: 5%"># of trials: </label>
+                      <input id='trials-input' class="input-field" type="number" min=1 max=1000 value=10 style="width: 7%;margin-left: 2%;margin-top: 1.3%;padding-left: 20px;; float: left;background-color: rgba(0,0,0,0.1);">
+                    <button style="margin-left:5%;float: left;margin-top: 2%;" class="waves-effect waves-light btn-small brown z-depth-5" onclick="computeCanvas()"><i class="material-icons">send</i></button>
+
+                </div>
+                <canvas id="piano-canvas" class="z-depth-5"></canvas>
+                <img id="piano-img" src="./imgs/piano.png" style="visibility: hidden; display: none;" >
+            </div>
+            
+
+        </div>
+
+
+        <div class="fixed-action-btn" style="right:86%;top:13%;">
+            <a class="btn-floating btn-large red">
+              <i id="main-format" class="large material-icons">mode_edit</i>
+            </a>
+            <ul>
+              <li><a id="fab-first" class="btn-floating yellow darken-1"><i onclick="switchFormat(this)" class="material-icons">piano</i></a></li>
+              <li><a id="fab-second" class="btn-floating green"><i onclick="switchFormat(this)" class="material-icons">mic</i></a></li>
+            </ul>
+          </div>
+        
+        
+    </div>
+    
+
+</body>
+
+<script src="./js/script.js"></script>
+<script src="./js/grammar.js"></script>
+<script src="./js/parse.js"></script>
+<script src="./js/chord_transitions.js"></script>
+<script src="./js/grammar2.js"></script>
+<link rel="stylesheet" href="./css/create.css">
+</html>
+
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.fixed-action-btn');
+    var options = {direction:'bottom'}
+    var instances = M.FloatingActionButton.init(elems, options);
+    elems = document.querySelectorAll('select');
+    instances = M.FormSelect.init(elems, options);
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('.fixed-action-btn').floatingActionButton();
+    $('select').formSelect();
+  });
+
+</script>
