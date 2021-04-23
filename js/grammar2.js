@@ -94,6 +94,7 @@ class CFG2 {
     add_rules = (rules) => {
         // format = [('S','B1 B2 B3 B4'),...]
         rules = rules.values()
+        console.log('rules:',rules)
         for(let i=0; i < rules.length; i++){
             let rule = rules[i]
             if(rule[0] in this.rules) this.rules[rule[0]].push(rule[1].split(' '))
@@ -435,6 +436,8 @@ function init_rules() {
     
 
 }
+
+init_rules()
 
 G2 = new CFG2(temp_vars, temp_terminals, 'U')
 G2.add_rules(temp_rules)
