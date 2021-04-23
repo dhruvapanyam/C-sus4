@@ -26,7 +26,7 @@ A -> I | ii | iii | IV | V | vi
 
 */
 
-const chord_names = ['I','ii', 'III', 'iii','IV','V','vi']
+const chord_names = {'happy': ['I','ii', 'III', 'iii','IV','V','vi'], 'sad': ['I','ii', 'III', 'iii','IV','V','vi'], 'jazz': ["7-7", "2-m7", "0-M7", "0", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"]}
 
 
 chord_transitions = [{
@@ -80,7 +80,7 @@ chord_transitions = [{
 class CFG2 {
     constructor(vars,alph,start){
         this.rules = {}
-        this.variables = new Set(vars)
+        this.variables = vars
         this.alphabet = new Set(alph)
         this.start = start
         this.DP = {}
@@ -90,9 +90,10 @@ class CFG2 {
         console.log(this)
 
     }
-
+    
     add_rules = (rules) => {
         // format = [('S','B1 B2 B3 B4'),...]
+        rules = rules.values()
         for(let i=0; i < rules.length; i++){
             let rule = rules[i]
             if(rule[0] in this.rules) this.rules[rule[0]].push(rule[1].split(' '))
@@ -101,6 +102,7 @@ class CFG2 {
         console.log(this.rules)
 
     }
+
 
     /*
 
@@ -167,13 +169,8 @@ class CFG2 {
             if (prev_chord != null) {
                 if (str[0] == 'A' && prev_chord != null) {
                     temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
-<<<<<<< HEAD
-                    if(prev_chord == 'vi') 
-                        //console.log(temp_arr.join(' '))
-=======
                     // if(prev_chord == 'vi') 
                     //     console.log(temp_arr.join(' '))
->>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
                     shuf = true
                 }
             }
@@ -188,11 +185,7 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
-<<<<<<< HEAD
-                    score += transition_prob['happy']['4/4'][pos][prev_chord][next_chord_pos];
-=======
                     score += transition_prob[STYLE]['4/4'][pos][prev_chord][next_chord_pos];
->>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
                 }
                 
             }
@@ -224,18 +217,11 @@ class CFG2 {
 
         let max_score = 0
 
-<<<<<<< HEAD
-        input = "happy 4/4 ".concat(input)
-        let parsed = []
-        for(let i = 0; i < 100; i++){
-            
-=======
         input = STYLE.concat(" 4/4 ".concat(input))
         let parsed = []
         let trials =parseInt(document.getElementById('trials-input').value)
         for(let i = 0; i < trials; i++){
 
->>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
             let parsed2 = this.parse(input.split(' '),null,null)
             if(this.score > max_score) {
                 max_score = this.score
@@ -295,100 +281,160 @@ function sample_shuffle(arr){
 
 function reorder_rules(pos, chord){
     // chord = 'I'
-<<<<<<< HEAD
-    vect = transition_prob['happy']['4/4'][pos][chord]
-=======
-    vect = transition_prob[STYLE]['4/4'][pos][chord]
->>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
 
+
+    vect = transition_prob[STYLE]['4/4'][pos][chord]
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
 
 var STYLE = 'happy'
 
+style_id = {'happy': 'H', 'sad': 'S', 'jazz': 'J'}
 
 chord_set = new Set(['I','ii','III', 'III','IV','V','vi'])
 // ----------------------------------------------------------------------------
-let temp_vars = ['U','B01','B11', 'B2','B3','B04','B14', 'A','I','ii','iii','IV','V','vi','Happy', 'Sad', '4//4', 'Start1','Start2']
-let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', '4/4']
-let temp_rules = [
+let temp_vars = new Set('U','B1H','B1S', 'B1J', 'B2','B3','B4H','B4S', 'B4J', 'AllH', 'AllS', 'AllJ', 'Happy', 'Sad', 'Jazz', '4//4', 'StartH','StartS', 'StartJ')
+let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', 'jazz', '4/4']
+let temp_rules = new Set(
     ['U', 'Happy'],
     ['U', 'Sad'],
-<<<<<<< HEAD
-    ['Happy', 'happy 4//4'],
-    ['Sad', 'sad 4//4'],
-    ['4//4', '4/4 Start'],
-    ['Start','B1 B2 B3 B4'],
-    //['Start','B11 B2 B3 B14'],
-    //['B01','I A A A'],
-    ['B1','I A A A'],
-    ['B2','A A A A'],
-    ['B3','A A A A'],
-    //['B04','A A A I'],
-    ['B4','A A A I'],
-
-=======
-    ['Happy', 'happy 4/4 Start1'],
-    ['Sad', 'sad 4/4 Start2'],
+    ['Happy', 'happy 4/4 StartH'],
+    ['Sad', 'sad 4/4 StartS'],
+    ['Jazz', 'jazz 4/4 StartJ']
     // ['4//4', '4/4 Start'],
-    ['Start1','B01 B2 B3 B04'],
-    ['Start2','B11 B2 B3 B14'],
-    ['B01','I A A A'],
-    ['B01','A A A A'],
-    ['B11','vi A A A'],
-    ['B11','A A A A'],
-    ['B2','A A A A'],
-    ['B3','A A A A'],
-    ['B04','A A A I'],
-    ['B04','A A A A'],
-    ['B14','A A A vi'],
-    ['B14','A A A A'],
->>>>>>> 2d04d37f597aeadd48745b039590d890aac3543b
-    ['A','I'],
-    ['A','ii'],
-    ['A','iii'],
-    ['A', 'III'],
-    ['A','IV'],
-    ['A','V'],
-    ['A','vi'],
+    // ['StartH','B1H B2H B3H B4H'],
+    // ['StartS','B1S B2S B3S B4S'],
+    // ['StartJ','B1J B2J B3J B4J'],
+    // ['B1H','I A A A'],
+    // ['B1S','vi A A A'],
+    // ['B2','A A A A'],
+    // ['B3','A A A A'],
+    // ['B4H','A A A I'],
+    // ['B4S','A A A vi'],
 
-    ['I','0'],
-    ['I','4'],
-    ['I','7'],
-    //['I','11'],
+    // ['A','I'],
+    // ['A','ii'],
+    // ['A','iii'],
+    // ['A', 'III'],
+    // ['A','IV'],
+    // ['A','V'],
+    // ['A','vi'],
 
-    ['ii','2'],
-    ['ii','5'],
-    ['ii','9'],
-    //['ii','0'],
+    // ['I','0'],
+    // ['I','4'],
+    // ['I','7'],
+    // //['I','11'],
 
-    ['iii','4'],
-    ['iii','7'],
-    ['iii','11'],
-    //['iii','2'],
+    // ['ii','2'],
+    // ['ii','5'],
+    // ['ii','9'],
+    // //['ii','0'],
 
-    ['III','4'],
-    ['III','8'],
-    ['III','11'],
+    // ['iii','4'],
+    // ['iii','7'],
+    // ['iii','11'],
+    // //['iii','2'],
 
-    ['IV','5'],
-    ['IV','9'],
-    ['IV','0'],
-    //['IV','4'],
+    // ['III','4'],
+    // ['III','8'],
+    // ['III','11'],
 
-    ['V','7'],
-    ['V','11'],
-    ['V','2'],
-    //['V','5'],
+    // ['IV','5'],
+    // ['IV','9'],
+    // ['IV','0'],
+    // //['IV','4'],
 
-    ['vi','9'],
-    ['vi','0'],
-    ['vi','4'],
-    //['vi','4'],
+    // ['V','7'],
+    // ['V','11'],
+    // ['V','2'],
+    // //['V','5'],
 
-]
+    // ['vi','9'],
+    // ['vi','0'],
+    // ['vi','4'],
+    // //['vi','4'],
 
+)
+
+for (style in chord_names) {
+    //console.log(...chord_names[style])
+    for (let chord of chord_names[style])
+        temp_vars.add(chord)
+}
+
+console.log(temp_vars)
+
+function init_rules() {
+
+    
+
+    
+    for (style in style_id) {
+        // Adding Start rules
+        let start_rule_res = ""
+        let start_var_name = "Start" + style_id[style]
+        for (let beat = 1; beat <= 4; beat++) {
+            start_rule_res += "B" + String(beat) + style_id[style] + (beat < 4 ? " ": "")
+        }
+        temp_rules.add([start_var_name, start_rule_res])
+
+        let all_var_name = 'All' + style_id[style]
+
+        // Adding bar rules
+        for (let beat = 1; beat <= 4; beat++) {
+            let bar_var_name = 'B' + String(beat) + style_id[style]
+            
+            let rule_result
+            if(beat == 1) {
+                if(style == 'happy') {
+                    rule_result = 'I ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
+                }
+                else if(style == 'sad') {
+                    rule_result = 'vi ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
+                }
+                else if(style == 'jazz') {
+                    rule_result = '0-M7 ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
+                }
+            }
+            else if(beat == 4) {
+                if(style == 'happy') {
+                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' I'
+                }
+                else if(style == 'sad') {
+                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' vi'
+                }
+                else if(style == 'jazz') {
+                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' 0M7'
+                }
+                
+            }
+            else {
+                rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
+            }
+            temp_rules.add([bar_var_name, rule_result])
+
+        }
+
+        //
+        
+
+        // Adding AllS, AllH, AllJ rules and adding rules for each chord
+        for(chord of chord_names[style]) {
+            temp_rules.add([all_var_name, chord])
+
+            let expanded_chord = getChordNotes(chord, style)
+            for (note of expanded_chord) {
+                temp_rules.add([chord, String(note)])
+            }
+        }
+        
+
+    }
+
+    
+
+}
 
 G2 = new CFG2(temp_vars, temp_terminals, 'U')
 G2.add_rules(temp_rules)
