@@ -79,10 +79,10 @@ let transitions_string =
 50	10	0	10	50	50	10`
 
 chord_trans = transitions_string.split(/[\t \n]+/)
-console.log(chord_trans)
+//console.log(chord_trans)
 trans_len = parseInt(chord_trans.length/4)
 chord_trans = [...Array(4).keys()].map(i => chord_trans.slice(i*trans_len, (i+1)*trans_len))
-console.log(chord_trans)
+// console.log(chord_trans)
 
 c_names = ['I', 'ii', 'III', 'iii', 'IV', 'V', 'vi']
 for(let i = 0; i < 4; i++) {
@@ -90,7 +90,7 @@ for(let i = 0; i < 4; i++) {
         transition_prob['happy']['4/4'][i][c_names[j]] = chord_trans[i].slice(j * c_names.length, (j + 1) * c_names.length).map(x => parseInt(x))
     }
 }
-console.log(transition_prob)
+// console.log(transition_prob)
 
 
 transition_prob['happy']['4/4'][3]['V'][4] = 10
@@ -132,17 +132,17 @@ let sad_probs =
 `
 
 chord_trans = sad_probs.split(/[\t \n]+/)
-console.log(chord_trans)
+// console.log(chord_trans)
 trans_len = parseInt(chord_trans.length/4)
 chord_trans = [...Array(4).keys()].map(i => chord_trans.slice(i*trans_len, (i+1)*trans_len))
-console.log(chord_trans)
+//console.log(chord_trans)
 
 for(let i = 0; i < 4; i++) {
     for(let j = 0; j < c_names.length; j++) {
         transition_prob['sad']['4/4'][i][c_names[j]] = chord_trans[i].slice(j * c_names.length, (j + 1) * c_names.length).map(x => parseInt(x))
     }
 }
-console.log(transition_prob)
+//console.log(transition_prob)
 
 
 // 7-7 2-m7 0-M7 0 0-7 2-7 9-m7 9-7 0-m7 4-m7 5-7 2-%7 5-m7 10-7 4-7 5-M7 0-m 7-aug7 8-7 3-7
@@ -237,14 +237,14 @@ let jazz_probs =
 `
 
 chord_trans = jazz_probs.split(/[\t \n]+/)
-console.log(chord_trans)
+//console.log(chord_trans)
 trans_len = parseInt(chord_trans.length/4)
 chord_trans = [...Array(4).keys()].map(i => chord_trans.slice(i*trans_len, (i+1)*trans_len))
-console.log(chord_trans)
+//console.log(chord_trans)
 
 for(let i = 0; i < 4; i++) {
     for(let j = 0; j < jazz_c_names.length; j++) {
         transition_prob['jazz']['4/4'][i][jazz_c_names[j]] = chord_trans[i].slice(j * jazz_c_names.length, (j + 1) * jazz_c_names.length).map(x => parseInt(x))
     }
 }
-console.log(transition_prob)
+//console.log(transition_prob)

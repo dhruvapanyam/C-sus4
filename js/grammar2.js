@@ -26,7 +26,7 @@ A -> I | ii | iii | IV | V | vi
 
 */
 
-const chord_names = {'happy': ['I','ii', 'III', 'iii','IV','V','vi'], 'sad': ['I','ii', 'III', 'iii','IV','V','vi'], 'jazz': ["7-7", "2-m7", "0-M7", "0", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"]}
+const chord_names = {'happy': ['I','ii', 'III', 'iii','IV','V','vi'], 'sad': ['I','ii', 'III', 'iii','IV','V','vi'], 'jazz': ["7-7", "2-m7", "0-M7", "0-M", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"]}
 
 
 chord_transitions = [{
@@ -93,7 +93,8 @@ class CFG2 {
     
     add_rules = (rules) => {
         // format = [('S','B1 B2 B3 B4'),...]
-        rules = rules.values()
+        rules = [...rules.values()]
+        //console.log(rules)
         for(let i=0; i < rules.length; i++){
             let rule = rules[i]
             if(rule[0] in this.rules) this.rules[rule[0]].push(rule[1].split(' '))
@@ -113,9 +114,9 @@ class CFG2 {
     */
 
     parse = (input_main,str=null,prev_chord=null, score=0, pos=0) => {
-        // console.log(input_main,str,prev_chord)
+        //console.log(input_main,str,prev_chord)
         let input = input_main
-        // console.log('.')
+        //console.log('.')
         // format: 
         // input = ['I', 'III', 'IV', 'I']
         // str = ['T','S','D','T','B2']
@@ -167,8 +168,10 @@ class CFG2 {
             let shuf = false
             let temp_arr = this.rules[str[0]]
             if (prev_chord != null) {
-                if (str[0] == 'A' && prev_chord != null) {
+                let all_var_name = "All" + style_id[STYLE]
+                if (str[0] == all_var_name && prev_chord != null) {
                     temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
+                    //console.log("Here 2: ", temp_arr)
                     // if(prev_chord == 'vi') 
                     //     console.log(temp_arr.join(' '))
                     shuf = true
@@ -193,7 +196,7 @@ class CFG2 {
                 next_chord = prev_chord
             }
 
-            // console.log(str[0], temp_arr)
+            //console.log(str[0], temp_arr)
             for(let rule of temp_arr){
                 // console.log('at rule =',rule)
                 let new_str = rule.concat(str.slice(1))     // if str = ['U'] and rule = ['B1','B2'] ... concatenated = ['B1','B2'] + str[1:]
@@ -245,7 +248,7 @@ class CFG2 {
 }
 
 function convert_vect_to_chord_pair(arr){
-    return [...Array(arr.length).keys()].map(x=>[chord_names[x],arr[x]])
+    return [...Array(arr.length).keys()].map(x=>[chord_names[STYLE][x],arr[x]])
 }
 
 
@@ -282,23 +285,24 @@ function sample_shuffle(arr){
 function reorder_rules(pos, chord){
     // chord = 'I'
 
-
     vect = transition_prob[STYLE]['4/4'][pos][chord]
+    //console.log("Here: ", chord, vect)
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
 }
 
-var STYLE = 'happy'
+var STYLE = 'jazz'
 
 style_id = {'happy': 'H', 'sad': 'S', 'jazz': 'J'}
 
-chord_set = new Set(['I','ii','III', 'III','IV','V','vi'])
+chord_set = new Set(['I','ii','III', 'III','IV','V','vi', "7-7", "2-m7", "0-M7", "0-M", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"])
 // ----------------------------------------------------------------------------
 let temp_vars = new Set('U','B1H','B1S', 'B1J', 'B2','B3','B4H','B4S', 'B4J', 'AllH', 'AllS', 'AllJ', 'Happy', 'Sad', 'Jazz', '4//4', 'StartH','StartS', 'StartJ')
 let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', 'jazz', '4/4']
-let temp_rules = new Set(
+let temp_rules = new Set([...[
     ['U', 'Happy'],
     ['U', 'Sad'],
+    ['U', 'Jazz'],
     ['Happy', 'happy 4/4 StartH'],
     ['Sad', 'sad 4/4 StartS'],
     ['Jazz', 'jazz 4/4 StartJ']
@@ -355,7 +359,7 @@ let temp_rules = new Set(
     // ['vi','4'],
     // //['vi','4'],
 
-)
+]])
 
 for (style in chord_names) {
     //console.log(...chord_names[style])
@@ -365,9 +369,51 @@ for (style in chord_names) {
 
 console.log(temp_vars)
 
-function init_rules() {
+const chord_expansions = {
+    'm': [0, 3, 7],
+    'm7': [0, 3, 7, 10],
+    'M': [0, 4, 7],
+    'M7': [0, 4, 7, 11],
+    '7': [0, 4, 7, 10],
+    'aug7': [0, 4, 8, 10],
+    'o7': [0, 3, 6, 9],
+    'b5,7': [0, 4, 6, 10],
+    'sus4,7': [0, 5, 7, 10],
+    '%7': [0, 3, 6, 10],
+    'I' : [0, 4, 7],
+    'ii' : [2, 5, 9],
+    'iii' : [4, 7, 11],
+    'III' : [4, 8, 11],
+    'IV' : [5, 9, 0],
+    'V' : [7, 11, 2],
+    'vi' : [9, 0, 4]
+}
 
+function transposeChord(chord, root) {
+    //console.log("here, ", chord)
+    for(let i = 0; i < chord.length; i++) {
+        chord[i] += root;
+        chord[i] %= 12;
+    }
     
+}
+
+function getChordNotes(chord, style) {
+    if(style == 'happy' || style == 'sad')  {
+        return chord_expansions[chord]
+    }
+    else {
+        let root = parseInt(chord.split('-')[0])
+        let type = chord.split('-')[1]
+
+        //console.log(type, chord_expansions[type]) 
+        let chord_new = chord_expansions[type];
+        transposeChord(chord_new, root)
+        return chord_new
+    }
+}
+
+function init_rules() {
 
     
     for (style in style_id) {
@@ -381,6 +427,7 @@ function init_rules() {
 
         let all_var_name = 'All' + style_id[style]
 
+        
         // Adding bar rules
         for (let beat = 1; beat <= 4; beat++) {
             let bar_var_name = 'B' + String(beat) + style_id[style]
@@ -405,7 +452,7 @@ function init_rules() {
                     rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' vi'
                 }
                 else if(style == 'jazz') {
-                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' 0M7'
+                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' 0-M7'
                 }
                 
             }
@@ -420,21 +467,31 @@ function init_rules() {
         
 
         // Adding AllS, AllH, AllJ rules and adding rules for each chord
-        for(chord of chord_names[style]) {
+        for(let chord of chord_names[style]) {
+
             temp_rules.add([all_var_name, chord])
 
-            let expanded_chord = getChordNotes(chord, style)
-            for (note of expanded_chord) {
-                temp_rules.add([chord, String(note)])
+            if(style != 'sad') {
+                let expanded_chord = getChordNotes(chord, style)
+                for (note of expanded_chord) {
+                    temp_rules.add([chord, String(note)])
+                }
             }
+            
         }
         
 
     }
 
-    
 
 }
 
+init_rules()
+
+
 G2 = new CFG2(temp_vars, temp_terminals, 'U')
 G2.add_rules(temp_rules)
+
+//console.log(G2.parse_master('0 0 0 0'))
+
+//console.log(temp_rules)
