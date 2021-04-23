@@ -168,7 +168,7 @@ class CFG2 {
                 if (str[0] == 'A') {
                     temp_arr = reorder_rules(pos, prev_chord).map(x=>[x])
                     if(prev_chord == 'vi') 
-                        console.log(temp_arr.join(' '))
+                        //console.log(temp_arr.join(' '))
                     shuf = true
                 }
             }
@@ -183,7 +183,7 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
-                    score += transition_prob['sad']['4/4'][pos][prev_chord][next_chord_pos];
+                    score += transition_prob['happy']['4/4'][pos][prev_chord][next_chord_pos];
                 }
                 
             }
@@ -211,12 +211,11 @@ class CFG2 {
 
         let max_score = 0
 
-        input = "sad 4/4 ".concat(input)
+        input = "happy 4/4 ".concat(input)
         let parsed = []
-        for(let i = 0; i < 1; i++){
-
+        for(let i = 0; i < 100; i++){
+            
             let parsed2 = this.parse(input.split(' '),null,null)
-
             if(this.score > max_score) {
                 max_score = this.score
                 parsed = parsed2
@@ -224,7 +223,6 @@ class CFG2 {
         }
         console.log("Max Score: ", max_score)
 
-        console.log(parsed)
 
         let chords = []
         for(let i=1; i<parsed.length;i++){
@@ -232,6 +230,7 @@ class CFG2 {
                 chords.push(parsed[i-2][0])
         }
 
+        
         chords.push(parsed[parsed.length-2][0])
 
         return [chords.slice(2), this.score]
@@ -275,7 +274,7 @@ function sample_shuffle(arr){
 
 function reorder_rules(pos, chord){
     // chord = 'I'
-    vect = transition_prob['sad']['4/4'][pos][chord]
+    vect = transition_prob['happy']['4/4'][pos][chord]
 
 
     return sample_shuffle(convert_vect_to_chord_pair(vect))
@@ -295,11 +294,12 @@ let temp_rules = [
     ['Start','B1 B2 B3 B4'],
     //['Start','B11 B2 B3 B14'],
     //['B01','I A A A'],
-    ['B1','vi A A A'],
+    ['B1','I A A A'],
     ['B2','A A A A'],
     ['B3','A A A A'],
     //['B04','A A A I'],
-    ['B4','A A A vi'],
+    ['B4','A A A I'],
+
     ['A','I'],
     ['A','ii'],
     ['A','iii'],

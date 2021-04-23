@@ -100,6 +100,8 @@ console.log(transition_prob)
 
 
 transition_prob['happy']['4/4'][3]['V'][4] = 10
+transition_prob['happy']['4/4'][0]['I'][4] = 10
+transition_prob['happy']['4/4'][3]['V'][5] = 10
 
 let sad_probs = 
 `30	40	10	40	40	30	50
