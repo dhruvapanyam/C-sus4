@@ -571,7 +571,7 @@ function tryAddingMelodyNote(x,y){
     let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
     console.log(ticks)
 
-    piano.triggerAttackRelease(notenames[R-row-1],500)
+    lead.triggerAttackRelease(notenames[R-row-1],500)
     melody_notes.add(num)
     eventID[num] = Tone.Transport.schedule(function(time){
         lead.triggerAttackRelease(notenames[R-row-1],0.5)
