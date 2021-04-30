@@ -3,20 +3,19 @@ import csv
 transition_frequency = [{}, {}, {}, {}]
 
 songs = []
+chord_counts = {}
+
+chords_checking = []
+
+song_reader_data = []
+
+song_range = {}
 
 with open('./songs.csv') as songs_file:
   songs_reader = csv.reader(songs_file, delimiter=',')
-  line_count = 0
   for row in songs_reader:
-
-    if(line_count == 0):
-      line_count += 1
-      continue
+    song_reader_data.append(row)
     
-    if(row[2] == '4'):
-
-      if(row[1].split(' ')[1] == "major"):
-        songs.append([int(row[2]), int(row[3]), 'M'])
       # else:
       #   songs.append([int(row[2]), int(row[3]), 'm'])
 
@@ -24,6 +23,19 @@ with open('./songs.csv') as songs_file:
 #   print(row)
 
 #print("Here ", songs[0][1], songs[1][1])
+
+for i in range(1,len(song_reader_data)):
+  row = song_reader_data[i]
+  
+  if(row[2] == '4'):
+    if(row[1].split(' ')[1] == "major"):
+      songs.append([int(row[2]), int(row[3]), 'M'])
+
+      if i < len(song_reader_data)-1:
+        left = int(row[3])
+        right = int(song_reader_data[i+1][3])
+        # print(left,right)
+        song_range[left] = right
 
 chords_data = []
 
@@ -43,21 +55,22 @@ with open('./chords.csv') as csv_file:
     chords_data.append(row)
 
   
-
-
+  
   #num_songs = 0
   for i in range(len(songs) - 1):
     if(songs[i][0] == 4):
       #num_songs += 1
+      
 
       #if(songs[i][2] == 'M'):
       bar_pos = 0
       #print(songs[i][1], songs[i + 1][1])
-      for line_count in range(songs[i][1], songs[i + 1][1]):
+      for line_count in range(songs[i][1], song_range[songs[i][1]]):
 
         if(line_count == songs[i][1]):
 
           prev_chord = chords_data[line_count][0]
+
           #print("Prev: ", prev_chord)
 
           if(chords_data[line_count][1] != ""):
@@ -109,8 +122,21 @@ with open('./chords.csv') as csv_file:
             
 
             prev_chord = curr_chord
+          
+          if prev_chord in chord_counts: chord_counts[prev_chord] += 1
+          else: chord_counts[prev_chord] = 1
 
 
+
+
+
+temp_arr = [c for c in chord_counts]
+temp_arr.sort(reverse=True, key = lambda c: chord_counts[c])
+
+temp_arr = temp_arr[:20]
+print('Top chords:',temp_arr)
+# print(temp_arr[:20])
+# input()
           
 
 
@@ -138,6 +164,9 @@ for row in chords_data:
     chord_freqs[chord] = 1
   else:
     chord_freqs[chord] += 1
+  
+# print(chord_counts)
+# input()
 
 
 #dict(sorted(chord_freqs.items(), key=lambda item: item[1]))
@@ -166,8 +195,8 @@ print("\n\n")
 
 
 for bar_pos in range(4):
-  for chord1 in arr:
-    for chord2 in arr:
+  for chord1 in temp_arr:
+    for chord2 in temp_arr:
       print(transition_frequency[bar_pos][chord1][chord2], end=" ")
     print()
   print("\n")

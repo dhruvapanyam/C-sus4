@@ -26,7 +26,12 @@ A -> I | ii | iii | IV | V | vi
 
 */
 
-const chord_names = {'happy': ['I','ii', 'III', 'iii','IV','V','vi'], 'sad': ['I','ii', 'III', 'iii','IV','V','vi'], 'jazz': ["7-7", "2-m7", "0-M7", "0-M", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"]}
+const chord_names = {
+    'happy': ['I','ii', 'III', 'iii','IV','V','vi'], 
+    'sad': ['I','ii', 'III', 'iii','IV','V','vi'], 
+    'jazz_major': ['7-7', '2-m7', '0-M', '0-M7', '0-7', '9-m7', '9-7', '2-7', '4-m7', '5-7', '4-7', '10-7', '5-M7', '7-m7', '3-o7', '5-m7', '2-%7', '3-7', '5-M', '8-M7'],
+    'jazz_minor': ['0-m7', '7-7', '2-%7', '0-m', '5-m7', '7-aug7', '2-7', '0-7', '8-7', '10-7', '3-7', '5-m', '8-M7', '2-m7', '9-%7', '3-M7', '10-m7', '9-aug7', '0-#5,m7', '0-M7']
+}
 
 
 chord_transitions = [{
@@ -197,6 +202,7 @@ class CFG2 {
             }
 
             //console.log(str[0], temp_arr)
+            // console.log(temp_arr)
             for(let rule of temp_arr){
                 // console.log('at rule =',rule)
                 let new_str = rule.concat(str.slice(1))     // if str = ['U'] and rule = ['B1','B2'] ... concatenated = ['B1','B2'] + str[1:]
@@ -235,6 +241,12 @@ class CFG2 {
 
 
         let chords = []
+        
+        if (parsed.length == 0){
+            alert('Could not compute a valid chord progression for this melody!')
+            return null;
+        }
+
         for(let i=1; i<parsed.length;i++){
             if(parsed[i].length < parsed[i-1].length)
                 chords.push(parsed[i-2][0])
@@ -293,72 +305,28 @@ function reorder_rules(pos, chord){
 
 var STYLE = 'happy'
 
-style_id = {'happy': 'H', 'sad': 'S', 'jazz': 'J'}
+style_id = {'happy': 'H', 'sad': 'S', 'jazz_major': 'JM', 'jazz_minor':'Jm'}
 
-chord_set = new Set(['I','ii','III', 'III','IV','V','vi', "7-7", "2-m7", "0-M7", "0-M", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"])
+chord_set = new Set()
+for(let style in chord_names){
+    for(let c of chord_names[style]){
+        chord_set.add(c)
+    }
+}
+
+// chord_set = new Set(['I','ii','III', 'III','IV','V','vi', "7-7", "2-m7", "0-M7", "0-M", "0-7", "2-7", "9-m7", "9-7", "0-m7", "4-m7", "5-7", "2-%7", "5-m7", "10-7", "4-7", "5-M7", "0-m", "7-aug7", "8-7", "3-7"])
 // ----------------------------------------------------------------------------
-let temp_vars = new Set('U','B1H','B1S', 'B1J', 'B2','B3','B4H','B4S', 'B4J', 'AllH', 'AllS', 'AllJ', 'Happy', 'Sad', 'Jazz', '4//4', 'StartH','StartS', 'StartJ')
-let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', 'jazz', '4/4']
+let temp_vars = new Set('U','B1H','B1S', 'B1JM', 'B1Jm', 'B2','B3','B4H','B4S', 'B4JM', 'B4Jm', 'AllH', 'AllS', 'AllJ', 'Happy', 'Sad', 'JazzM', 'Jazzm', '4//4', 'StartH','StartS', 'StartJM', 'StartJm')
+let temp_terminals = ['0','1','2','3','4','5','6','7','8','9','10','11','12', 'happy', 'sad', 'jazz_minor', 'jazz_major', '4/4']
 let temp_rules = new Set([...[
     ['U', 'Happy'],
     ['U', 'Sad'],
-    ['U', 'Jazz'],
+    ['U', 'JazzM'],
+    ['U', 'Jazzm'],
     ['Happy', 'happy 4/4 StartH'],
     ['Sad', 'sad 4/4 StartS'],
-    ['Jazz', 'jazz 4/4 StartJ']
-    // ['4//4', '4/4 Start'],
-    // ['StartH','B1H B2H B3H B4H'],
-    // ['StartS','B1S B2S B3S B4S'],
-    // ['StartJ','B1J B2J B3J B4J'],
-    // ['B1H','I A A A'],
-    // ['B1S','vi A A A'],
-    // ['B2','A A A A'],
-    // ['B3','A A A A'],
-    // ['B4H','A A A I'],
-    // ['B4S','A A A vi'],
-
-    // ['A','I'],
-    // ['A','ii'],
-    // ['A','iii'],
-    // ['A', 'III'],
-    // ['A','IV'],
-    // ['A','V'],
-    // ['A','vi'],
-
-    // ['I','0'],
-    // ['I','4'],
-    // ['I','7'],
-    // //['I','11'],
-
-    // ['ii','2'],
-    // ['ii','5'],
-    // ['ii','9'],
-    // //['ii','0'],
-
-    // ['iii','4'],
-    // ['iii','7'],
-    // ['iii','11'],
-    // //['iii','2'],
-
-    // ['III','4'],
-    // ['III','8'],
-    // ['III','11'],
-
-    // ['IV','5'],
-    // ['IV','9'],
-    // ['IV','0'],
-    // //['IV','4'],
-
-    // ['V','7'],
-    // ['V','11'],
-    // ['V','2'],
-    // //['V','5'],
-
-    // ['vi','9'],
-    // ['vi','0'],
-    // ['vi','4'],
-    // //['vi','4'],
-
+    ['JazzM', 'jazz_major 4/4 StartJM'],
+    ['Jazzm', 'jazz_minor 4/4 StartJm'],
 ]])
 
 for (style in chord_names) {
@@ -380,6 +348,7 @@ const chord_expansions = {
     'b5,7': [0, 4, 6, 10],
     'sus4,7': [0, 5, 7, 10],
     '%7': [0, 3, 6, 10],
+    '#5,m7': [0, 3, 8, 10],
     'I' : [0, 4, 7],
     'ii' : [2, 5, 9],
     'iii' : [4, 7, 11],
@@ -399,6 +368,7 @@ function transposeChord(chord, root, contain) {
 }
 
 function getChordNotes(chord, style, contain=true) {
+    // console.log(chord)
     if(style == 'happy' || style == 'sad')  {
         return chord_expansions[chord]
     }
@@ -440,8 +410,11 @@ function init_rules() {
                 else if(style == 'sad') {
                     rule_result = 'vi ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
                 }
-                else if(style == 'jazz') {
+                else if(style == 'jazz_major') {
                     rule_result = '0-M7 ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
+                }
+                else if(style == 'jazz_minor') {
+                    rule_result = '0-m7 ' + all_var_name + ' ' + all_var_name + ' ' + all_var_name
                 }
             }
             else if(beat == 4) {
@@ -451,8 +424,11 @@ function init_rules() {
                 else if(style == 'sad') {
                     rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' vi'
                 }
-                else if(style == 'jazz') {
+                else if(style == 'jazz_major') {
                     rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' 0-M7'
+                }
+                else if(style == 'jazz_minor') {
+                    rule_result = all_var_name + ' ' + all_var_name + ' ' + all_var_name + ' 0-m7'
                 }
                 
             }

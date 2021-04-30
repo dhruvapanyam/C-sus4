@@ -116,14 +116,17 @@ function createAccompaniment(){
 
     // generate chords using the melody notes in input_nums
     console.log('computing')
-    progression = G2.parse_master(input,true)[0]
+    progression = G2.parse_master(input,true)
+
+    if(progression === null) {
+        return []
+    }
+
+    progression = progression[0]
 
     console.log(progression)
 
-    if(progression === undefined) {
-        alert('The grammar could not compute a valid derivation. (Make sure there are 16 notes)')
-        return
-    }
+    
 
     return progression
 
@@ -794,6 +797,7 @@ function computeCanvas() {
     saveInputCanvas()
     computed_chords = []
     computed_chords = createAccompaniment()
+    // console.log(computed_chords.length == 0)
     chordsID = []
     for(let i=0;i<computed_chords.length;i++){
         let ticks = String(parseInt(i/4)) + ':' + String(i%4) + ':0'
