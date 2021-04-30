@@ -208,10 +208,7 @@ function tempoSchedule(time){
 
 let regularity = 32
 var tempoEventID = Tone.Transport.scheduleRepeat(tempoSchedule,tempo_to_time(Tone.Transport.bpm.value)/regularity)
-// Tone.Transport.scheduleRepeat(function(time){
-//     console.log('now')
-// },'0:1:0')
-// Tone.Transport.start()
+
 
 
 
@@ -241,10 +238,10 @@ var recorded_piano = []
 var last_piano_note = null
 document.addEventListener('keydown',function(k){
     k = k.key
-    if (k == ' '){
-        playInputCanvas()
-        return
-    }
+    // if (k == ' '){
+    //     playInputCanvas()
+    //     return
+    // }
 
 
     if (document.getElementById('piano-canvas').style.display == 'none') return
@@ -592,9 +589,14 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
     let h = canvas.height / R
     ctx.fillStyle = '#db6969'
     for(let i=0;i<computed_chords.length;i++){
-        let rows = chord_notes[computed_chords[i]]
+        let rows = getChordNotes(computed_chords[i], STYLE, false)
+        if(i == 7){
+            // console.log(computed_chords[i])
+            // console.log(getChordNotes('2-m7',STYLE))
+        }
         let col = i+1
         // console.log(obj)
+        // console.log(rows)
         for(let row of rows)
             ctx.fillRect(col*w,(23-row)*h,w,h)
         
@@ -747,6 +749,7 @@ function clearInputCanvas() {
     }
     eventID = {}
     for(let num of chordsID){
+        // console.log(num)
         Tone.Transport.clear(num)
     }
     chordsID = []
@@ -795,14 +798,18 @@ function computeCanvas() {
     for(let i=0;i<computed_chords.length;i++){
         let ticks = String(parseInt(i/4)) + ':' + String(i%4) + ':0'
         chordsID.push(Tone.Transport.schedule(function(time){
-            if(computed_chords[i] == undefined) return
-            for(let note of chord_notes[computed_chords[i]])
-                piano.triggerAttackRelease(assignOctave(note,OCTAVE + parseInt(note/12)),0.5)
+            playChord2(computed_chords[i])
         },ticks))
     }
 }
 
-
+function playChord2(chord) {
+    let exp = getChordNotes(chord, STYLE,false)
+    // console.log(exp)
+    for(let note of exp) {
+        piano.triggerAttackRelease(assignOctave(note%12,OCTAVE + parseInt(note/12)),0.5)
+    }
+}
 
 function pauseInputCanvas(){
     Tone.Transport.pause()
@@ -815,3 +822,22 @@ function stopInputCanvas(){
     PIANO_RECORDING = null
 }
 
+function readMelodyInput() {
+    let melody = document.getElementById('melody-input').value.split(' ').slice(0,16)
+    clearInputCanvas()
+    for(let i=0; i<melody.length; i++){
+        let note = melody[i]
+        let row = 23 - reverse_notenames[note]
+        let col = i+1
+        let num = row*17 + col
+        melody_notes.add(num)
+        col--
+        let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
+        eventID[num] = Tone.Transport.schedule(function(time){
+            lead.triggerAttackRelease(notenames[23-row],0.5)
+            // console.log(ticks)
+        },ticks)
+        // console.log(notenames[23-row])
+    }
+    document.getElementById('melody-input').value = melody.join(' ')
+}
