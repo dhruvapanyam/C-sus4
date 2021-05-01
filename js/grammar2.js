@@ -219,6 +219,7 @@ class CFG2 {
 
     parse_master = (input) => {
         let stylevalue = document.getElementById('style-select').value
+        console.log('style:',stylevalue)
         if (stylevalue != ''){
             STYLE = stylevalue
         }

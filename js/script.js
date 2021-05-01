@@ -246,6 +246,7 @@ document.addEventListener('keydown',function(k){
     //     return
     // }
 
+    if(document.getElementById('piano-enabled').checked == false) return
 
     if (document.getElementById('piano-canvas').style.display == 'none') return
 
@@ -300,6 +301,8 @@ document.addEventListener('keydown',function(k){
 var playing = new Set()
 
 document.addEventListener('keyup',function(k){
+    if(document.getElementById('piano-enabled').checked == false) return
+
     if (document.getElementById('piano-canvas').style.display == 'none') return
     k = k.key
     for(let i = 0; i<whiteKeys.length; i++){
@@ -345,8 +348,12 @@ canvas.style.border = '1px solid'
 var ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth * 0.5
-canvas.style.marginLeft = '15%'
+// canvas.style.marginLeft = '%'
 canvas.height = canvas.width * (0.325)
+
+document.getElementById('choose-tone').style.height = String(canvas.height)+'px'
+// document.getElementById('lead-tone').style.paddingTop = String(canvas.height/8)+'px'
+
 
 
 
@@ -592,6 +599,7 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
     let h = canvas.height / R
     ctx.fillStyle = '#db6969'
     for(let i=0;i<computed_chords.length;i++){
+        if(computed_chords[i] == null) continue
         let rows = getChordNotes(computed_chords[i], STYLE, false)
         if(i == 7){
             // console.log(computed_chords[i])
@@ -767,13 +775,17 @@ window.addEventListener('resize',function(e){
     canvas.height = canvas.width * (0.325)
 
     icanvas.width = window.innerWidth * 0.7
-    icanvas.height = icanvas.width * (0.325)
+    icanvas.height = icanvas.width * (0.3)
 
     ccanvas.width = window.innerWidth * 0.7
     ccanvas.height = icanvas.height /17
 
     mcanvas.width = window.innerWidth * 0.7
     mcanvas.height = icanvas.height /17
+
+    // console.log(canvas.height)
+    document.getElementById('choose-tone').style.height = String(canvas.height)+'px'
+
 })
 
 window.addEventListener('mousedown',(e) => {
@@ -795,11 +807,20 @@ var chordsID = []
 
 function computeCanvas() {
     saveInputCanvas()
-    computed_chords = []
+    clearChords()
     computed_chords = createAccompaniment()
     // console.log(computed_chords.length == 0)
-    chordsID = []
+    let reg = parseInt(document.querySelector('input[name="regularity"]:checked').id.split('-')[1])
+    console.log(reg)
+
     for(let i=0;i<computed_chords.length;i++){
+        if(i%reg>0) computed_chords[i] = null
+    }
+
+    console.log(computed_chords)
+
+    for(let i=0;i<computed_chords.length;i++){
+        if(computed_chords[i] == null) continue
         let ticks = String(parseInt(i/4)) + ':' + String(i%4) + ':0'
         chordsID.push(Tone.Transport.schedule(function(time){
             playChord2(computed_chords[i])
@@ -808,6 +829,7 @@ function computeCanvas() {
 }
 
 function playChord2(chord) {
+    if(chord == null) return
     let exp = getChordNotes(chord, STYLE,false)
     // console.log(exp)
     for(let note of exp) {
@@ -844,4 +866,22 @@ function readMelodyInput() {
         // console.log(notenames[23-row])
     }
     document.getElementById('melody-input').value = melody.join(' ')
+}
+
+
+function clearChords(){
+    for(let num of chordsID){
+        // console.log(num)
+        Tone.Transport.clear(num)
+    }
+    chordsID = []
+    computed_chords = []
+}
+
+function changeLeadGain(val){
+    leadGain.gain.value = val
+}
+
+function changePianoGain(val){
+    pianoGain.gain.value = val
 }
