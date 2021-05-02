@@ -272,6 +272,7 @@ function quantizeNotes(ctx=ictx,canvas=icanvas) {
     for (let i=0;i<recorded_piano.length;i++){
         let move = recorded_piano[i][1] % 6.25 >= 3.125 ? 1 : 0 // 6.25 = 1/16 %
         let quantizedcol = parseInt(recorded_piano[i][1] / 6.25) + move
+        if(quantizedcol == NUM_COLS - 1) quantizedcol--;
         // recorded_piano[i][1] = 6.25 * (quantizedcol)
         let num
         let j=0;
