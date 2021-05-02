@@ -81,7 +81,7 @@
                                 <option value="jazz_major">Jazz (M)</option>
                                 <option value="jazz_minor">Jazz (m)</option>
                               </select>
-                              <input type="range" id="lead-gain" min=0 max=2 step="0.1" oninput="changeLeadGain(this.value)"> 
+                              <input type="range" id="lead-gain" min=0 max=0.8 step="0.1" oninput="changeLeadGain(this.value)"> 
                             </div>
                         </div>
                         <!-- <hr style="width:70%"> -->
@@ -95,7 +95,7 @@
                                 <option value="jazz_major">Jazz (M)</option>
                                 <option value="jazz_minor">Jazz (m)</option>
                               </select>
-                              <input type="range" id="piano-gain" min=0 max=2 step="0.1" oninput="changePianoGain(this.value)"> 
+                              <input type="range" id="piano-gain" min=0 max=0.8 step="0.1" oninput="changePianoGain(this.value)"> 
                             </div>
                         </div>
                         <hr style="width:95%">
@@ -200,10 +200,13 @@
 </body>
 
 <script src="./js/chord_transitions.js"></script>
-<script src="./js/grammar2.js"></script>
-<script src="./js/script.js"></script>
 <script src="./js/grammar.js"></script>
-<script src="./js/parse.js"></script>
+<script src="./js/controls.js"></script>
+<script src="./js/piano.js"></script>
+<script src="./js/midi.js"></script>
+<script src="./js/script.js"></script>
+<!-- <script src="./js/grammar.js"></script> -->
+<!-- <script src="./js/parse.js"></script> -->
 <link rel="stylesheet" href="./css/create.css">
 </html>
 
