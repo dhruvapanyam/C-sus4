@@ -74,12 +74,12 @@
                         <div id="lead-tone" class="two-split">
                           <div style="width:50%; float: left;margin-top: 10%; text-align: center;">LEAD TONE:</div>
                             <div style="width: 50%; float: left;">
-                              <select id="lead-tone-select">
-                                <option value="" disabled selected>Choose tone</option>
+                              <select id="lead-tone-select" onchange="changeLeadTone(this.value)">
+                                <!-- <option value="" disabled selected>Choose tone</option>
                                 <option value="happy">Happy (default)</option>
                                 <option value="sad">Sad</option>
                                 <option value="jazz_major">Jazz (M)</option>
-                                <option value="jazz_minor">Jazz (m)</option>
+                                <option value="jazz_minor">Jazz (m)</option> -->
                               </select>
                               <input type="range" id="lead-gain" min=0 max=0.8 step="0.1" oninput="changeLeadGain(this.value)"> 
                             </div>
@@ -88,14 +88,14 @@
                         <div class="two-split">
                           <div style="width:50%; float: left;margin-top: 10%; text-align: center;">CHORDS TONE:</div>
                             <div style="width: 50%; float: left;margin-top: 6.8%;">
-                              <select id="accompaniment-select">
-                                <option value="" disabled selected>Choose tone</option>
+                              <select id="accompaniment-select" onchange="changeAccompanimentTone(this.value);">
+                                <!-- <option value="" disabled selected>Choose tone</option>
                                 <option value="happy">Happy (default)</option>
                                 <option value="sad">Sad</option>
                                 <option value="jazz_major">Jazz (M)</option>
-                                <option value="jazz_minor">Jazz (m)</option>
+                                <option value="jazz_minor">Jazz (m)</option> -->
                               </select>
-                              <input type="range" id="piano-gain" min=0 max=0.8 step="0.1" oninput="changePianoGain(this.value)"> 
+                              <input type="range" id="piano-gain" min=0 max=0.8 step="0.1" oninput="changeAccompanimentGain(this.value)"> 
                             </div>
                         </div>
                         <hr style="width:95%">
