@@ -1,4 +1,4 @@
-# Csus4: A CFG-based music accompaniment generator
+# Csus4: A CFG-based Music Accompanier
 
 To run, start a local server to access sample tone files:
 `python -m http.server <port>`
