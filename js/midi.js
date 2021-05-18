@@ -141,17 +141,18 @@ function tryAddingMelodyNote(x,y){
     }
     col--;
     let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
-    console.log(ticks)
+    // console.log(ticks)
 
-    leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],500)
+    leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
     melody_notes.add(num)
     melodyID[num] = Tone.Transport.schedule(function(time){
-        leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.5)
-        console.log(ticks)
+        leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
+        // console.log(ticks)
     },ticks)
 }
 
 function interact(x,y){
+    if(document.activeElement.tagName != 'LI')
     tryAddingMelodyNote(x,y)
 }
 
@@ -256,7 +257,7 @@ function saveInputCanvas(){
         else cur = res[i]
         // console.log(res[i])
     }
-    console.log(res)
+    // console.log(res)
     res = res.join(' ')
     document.getElementById('melody-input').value = res
     return true
@@ -284,9 +285,9 @@ function quantizeNotes(ctx=ictx,canvas=icanvas) {
         let col = num % NUM_COLS
         col--
         let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
-        console.log(recorded_piano[i][0])
+        // console.log(recorded_piano[i][0])
         melodyID[num] = Tone.Transport.schedule(function(time){
-            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.5)
+            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.001)
         },ticks)
     }
     recorded_piano = []
@@ -317,13 +318,13 @@ function computeCanvas() {
     computed_chords = createAccompaniment()
     // console.log(computed_chords.length == 0)
     let reg = parseInt(document.querySelector('input[name="regularity"]:checked').id.split('-')[1])
-    console.log(reg)
+    // console.log(reg)
 
     for(let i=0;i<computed_chords.length;i++){
         if(i%reg>0) computed_chords[i] = null
     }
 
-    console.log(computed_chords)
+    // console.log(computed_chords)
 
     for(let i=0;i<computed_chords.length;i++){
         if(computed_chords[i] == null) continue
@@ -359,7 +360,7 @@ function readMelodyInput() {
         col--
         let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
         melodyID[num] = Tone.Transport.schedule(function(time){
-            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.5)
+            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.001)
             // console.log(ticks)
         },ticks)
         // console.log(notenames[23-row])

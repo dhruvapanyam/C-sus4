@@ -22,10 +22,10 @@ function createAccompaniment(){
     // get input notes
     input = document.getElementById('melody-input')
     input = notesToNums(input.value)
-    console.log(input)
+    // console.log(input)
 
     // generate chords using the melody notes in input_nums
-    console.log('computing')
+    // console.log('computing')
     progression = G2.parse_master(input,true)
 
     if(progression === null) {
@@ -33,7 +33,7 @@ function createAccompaniment(){
     }
 
     progression = progression[0]
-    console.log(progression)
+    // console.log(progression)
     return progression
 
 }

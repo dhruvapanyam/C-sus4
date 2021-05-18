@@ -1,11 +1,12 @@
 // --------------------------- TONES ---------------------------
 
-
 let tone_paths = [
+    'Lead Piano-C3.wav',
+    'Synth Piano-Fsharp4.wav',
     'Acoustic Guitar-C3.wav',
     'Alto Sax-C4.wav',
     'Electric Piano-C4.wav',
-    'Casio-VZ-10M-Piano-C2.wav',
+    // 'Casio-VZ-10M-Piano-C2.wav',
     'Cello-C3.wav',
     'Choir Aah-C4.wav',
     'Choir Ooh-C4.wav',
@@ -40,17 +41,35 @@ var CURRENT_LEAD = 0
 
 
 for(let path of accompaniment_tone_paths){
+    let acc;
+    switch(path[0]){
+        case 'C3':
+            acc = new Tone.Sampler({
+                'C3': './../samples/'+path[1]
+            },{
+                release: 80
+            })
+            break
+        
+        case 'C4':
+            acc = new Tone.Sampler({
+                'C4': './../samples/'+path[1]
+            },{
+                release: 80
+            })
+            break
 
+        case 'Fsharp4':
+            acc = new Tone.Sampler({
+                'F#4': './../samples/'+path[1]
+            },{
+                release: 80
+            })
 
-    let acc = path[0] == 'C3' ? new Tone.Sampler({
-        'C3': './../samples/'+path[1]
-    },{
-        release: 1000
-    }) : new Tone.Sampler({
-        'C4': './../samples/'+path[1]
-    },{
-        release: 1000
-    })
+    }
+
+    // console.log(acc)
+    
     let accGain = new Tone.Gain().toMaster()
     accGain.gain.value = 0.3
     acc.connect(accGain)   
@@ -67,15 +86,35 @@ for(let path of accompaniment_tone_paths){
 
 for(let path of lead_tone_paths){
 
-    let lead = path[0] == 'C3' ? new Tone.Sampler({
-        'C3': './../samples/'+path[1]
-    },{
-        release: 1000
-    }) : new Tone.Sampler({
-        'C4': './../samples/'+path[1]
-    },{
-        release: 1000
-    })
+    let lead;
+    switch(path[0]){
+        case 'C3':
+            lead = new Tone.Sampler({
+                'C3': './../samples/'+path[1]
+            },{
+                release: 80
+            })
+            break
+        
+        case 'C4':
+            lead = new Tone.Sampler({
+                'C4': './../samples/'+path[1]
+            },{
+                release: 80
+            })
+            break
+
+        case 'Fsharp4':
+            lead = new Tone.Sampler({
+                'F#4': './../samples/'+path[1]
+            },{
+                release: 80
+            })
+
+    }
+
+    // console.log(lead)
+
     let leadGain = new Tone.Gain().toMaster()
     leadGain.gain.value = 0.3
     lead.connect(leadGain)   
@@ -98,18 +137,20 @@ for (let i=0;i<leads.length;i++) {
 function changeLeadTone(val){
     let i = parseInt(val);
     CURRENT_LEAD = i;
-    leads[CURRENT_LEAD].tone.triggerAttackRelease('C3','+0')
+    leads[CURRENT_LEAD].tone.triggerAttackRelease('C3',0.001)
 }
 
 accToneDOM.innerHTML = '<option value="" disabled selected>Choose tone</option>'
-for (let i=0;i<accompaniments.length;i++) {
-    accToneDOM.innerHTML += '<option value="'+String(i)+'">'+leads[i].name+'</option>'
+accToneDOM.innerHTML += '<option value="'+String(1)+'">'+accompaniments[1].name+'</option>'
+accToneDOM.innerHTML += '<option value="'+String(0)+'">'+accompaniments[0].name+'</option>'
+for (let i=2;i<accompaniments.length;i++) {
+    accToneDOM.innerHTML += '<option value="'+String(i)+'">'+accompaniments[i].name+'</option>'
 }
 
 function changeAccompanimentTone(val){
     let i = parseInt(val);
     CURRENT_ACCOMPANIMENT = i;
-    accompaniments[CURRENT_ACCOMPANIMENT].tone.triggerAttackRelease('C3','+0')
+    accompaniments[CURRENT_ACCOMPANIMENT].tone.triggerAttackRelease('C3',0.001)
 }
 
 
@@ -208,7 +249,7 @@ function playChord(chord) {
     let exp = getChordNotes(chord, STYLE,false)
     // console.log(exp)
     for(let note of exp) {
-        accompaniments[CURRENT_ACCOMPANIMENT].tone.triggerAttackRelease(assignOctave(note%12,OCTAVE + parseInt(note/12)),'+0')
+        accompaniments[CURRENT_ACCOMPANIMENT].tone.triggerAttackRelease(assignOctave(note%12,OCTAVE + parseInt(note/12)),0.001)
     }
 }
 

@@ -360,3 +360,15 @@ for(let i = 0; i < 4; i++) {
     }
 }
 //console.log(transition_prob)
+
+
+
+
+
+
+function get_probability(style,timesig,pos,prev,next){
+    let val = transition_prob[style][timesig][pos][prev][next]
+    let tot = transition_prob[style][timesig][pos][prev].reduce((a,b)=>a+b)
+    return val/tot
+
+}

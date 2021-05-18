@@ -92,7 +92,7 @@ class CFG2 {
         this.counter = 0
         this.threshold = 0
         this.score = 0
-        console.log(this)
+        // console.log(this)
 
     }
     
@@ -105,7 +105,7 @@ class CFG2 {
             if(rule[0] in this.rules) this.rules[rule[0]].push(rule[1].split(' '))
             else this.rules[rule[0]] = [rule[1].split(' ')]
         }
-        console.log(this.rules)
+        // console.log(this.rules)
 
     }
 
@@ -119,7 +119,7 @@ class CFG2 {
     */
 
     parse = (input_main,str=null,prev_chord=null, score=0, pos=0) => {
-        //console.log(input_main,str,prev_chord)
+        // console.log(input_main,str,prev_chord)
         let input = input_main
         //console.log('.')
         // format: 
@@ -193,7 +193,7 @@ class CFG2 {
                     for(; next_chord_pos < chord_names.length && chord_names[next_chord_pos] != next_chord; next_chord_pos++);
                     //alert(prev_chord)
                     
-                    score += transition_prob[STYLE]['4/4'][pos][prev_chord][next_chord_pos];
+                    score += get_probability(STYLE,'4/4',pos,prev_chord,next_chord_pos);
                 }
                 
             }
@@ -219,11 +219,29 @@ class CFG2 {
 
     parse_master = (input) => {
         let stylevalue = document.getElementById('style-select').value
-        console.log('style:',stylevalue)
+        // console.log('style:',stylevalue)
         if (stylevalue != ''){
             STYLE = stylevalue
         }
         this.DP = {}
+
+        let first_note = input.split(' ')[0]
+        let first_chord = this.rules['B1'+style_id[STYLE]][0][0]
+        let possible = new Set(this.rules[first_chord].map(x=>x[0])).has(first_note)
+
+        if (possible == false){
+            alert('The first note must be compatible with chord: '+first_chord)
+            return null;
+        }
+
+        let last_note = input.split(' ')[15]
+        let last_chord = this.rules['B4'+style_id[STYLE]][0][3]
+        possible = new Set(this.rules[last_chord].map(x=>x[0])).has(last_note)
+
+        if (possible == false){
+            alert('The last note must be compatible with chord: '+last_chord)
+            return null;
+        }
 
         let max_score = 0
 
@@ -238,6 +256,8 @@ class CFG2 {
                 parsed = parsed2
             }
         }
+        console.log('Parse Tree:')
+        console.log(parsed)
         console.log("Max Score: ", max_score)
 
 
@@ -336,7 +356,7 @@ for (style in chord_names) {
         temp_vars.add(chord)
 }
 
-console.log(temp_vars)
+// console.log(temp_vars)
 
 const chord_expansions = {
     'm': [0, 3, 7],
