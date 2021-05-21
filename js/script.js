@@ -52,6 +52,9 @@ window.addEventListener('resize',function(e){
     mcanvas.width = window.innerWidth * 0.7
     mcanvas.height = icanvas.height /17
 
+    vcanvas.width = window.innerWidth * 0.5
+    vcanvas.height = canvas.width * (0.35)
+
     // console.log(canvas.height)
     document.getElementById('choose-tone').style.height = String(canvas.height)+'px'
 
@@ -69,5 +72,11 @@ window.addEventListener('mousedown',(e) => {
     let [x,y] = getMousePosition(icanvas,e)
     // console.log(x,y)
     interact(x,y)
+})
+
+window.addEventListener('mousemove',(e) => {
+    let [x,y] = getMousePosition(icanvas,e)
+    // console.log(x,y)
+    interact_hover(x,y)
 })
 

@@ -17,18 +17,12 @@ mctx = mcanvas.getContext('2d')
 mcanvas.width = window.innerWidth * 0.7
 mcanvas.height = icanvas.height / 17
 
-const NUM_ROWS = 32
-const NUM_COLS = 17
 
-
+var hovering_row = null
 
 var melody_notes = new Set()
 var computed_chords = []
 
-var notenames = ['C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3','C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4','C5','C#5','D5','D#5','E5','F5','F#5','G5']
-var reverse_notenames = {}
-for(let i=0;i<notenames.length;i++)
-    reverse_notenames[notenames[i]] = i
 
 var melodyID = {}   // stores Transport event IDs for melody notes
 var chordsID = []
@@ -39,6 +33,13 @@ var cursor_position = 0
 function drawGrid(ctx=ictx,canvas=icanvas) {
     let R = NUM_ROWS
     let C = NUM_COLS
+
+    if(hovering_row != null){
+        ctx.fillStyle = '#888888'
+        ctx.fillRect(canvas.width*hovering_row[1]/C, hovering_row[0]*(canvas.height/R),canvas.width/C, canvas.height/R)
+    }
+
+
     ctx.lineWidth = 3
     ctx.strokeStyle = '#000000'
     ctx.beginPath()
@@ -109,7 +110,14 @@ function writeNotes(ctx=ictx,canvas=icanvas){
     for(let i=0;i<R;i++){
         ctx.fillStyle = '#6ac4cc'
         ctx.fillRect(0,i*canvas.height/R, w*2, h)
-        ctx.fillStyle = '#FFFFFF'
+        if(hovering_row != null && hovering_row[0] == i){
+            ctx.fillStyle = '#000000'
+            ctx.font = '13px sans-serif'
+        }
+        else{
+            ctx.fillStyle = '#FFFFFF'
+            ctx.font = '8px sans-serif'
+        }
         ctx.fillText(notenames[R-i-1],w,i*h + 3*h/4)
     }
 
@@ -125,35 +133,71 @@ function tryAddingMelodyNote(x,y){
     let w = icanvas.width / C
     let h = icanvas.height / R
 
+    if (x <= w) return
+
+    for(let id in playback_ids){
+        let sh = R - 1 - playback_ids[id].note
+        let sw = 1 + (playback_ids[id].timestamp[0] * 16/100)
+        let sw2 = 1 + (playback_ids[id].timestamp[1] * 16/100)
+        if(y >= sh * h && y <= (sh+1) * h && x >= sw * w && x <= (sw2) * w){
+            console.log('YES')
+            Tone.Transport.clear(id)
+            delete playback_ids[id]
+            return
+        }
+    }
+
+    // here => not hit a melody note, so need to add it
+
+
     let col = parseInt(x/w)
     let row = parseInt(y/h)
 
-    // console.log(col,row)
-    let num = row * C + col
-
-    if (col == 0) return
-
-    if(melody_notes.has(num)){
-        Tone.Transport.clear(melodyID[num])
-        delete melodyID[num]
-        melody_notes.delete(num)
-        return
-    }
-    col--;
-    let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
-    // console.log(ticks)
-
     leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
-    melody_notes.add(num)
-    melodyID[num] = Tone.Transport.schedule(function(time){
-        leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
-        // console.log(ticks)
-    },ticks)
+
+    addOnePlaybackNote(R-row-1, [(col-1)*100/16, col*100/16])
+
+
+    // // console.log(col,row)
+    // let num = row * C + col
+
+    // if (col == 0) return
+
+    // if(melody_notes.has(num)){
+    //     Tone.Transport.clear(melodyID[num])
+    //     delete melodyID[num]
+    //     melody_notes.delete(num)
+    //     return
+    // }
+    // col--;
+    // let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
+    // // console.log(ticks)
+
+    // leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
+    // melody_notes.add(num)
+    // melodyID[num] = Tone.Transport.schedule(function(time){
+    //     leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[R-row-1],0.001)
+    //     // console.log(ticks)
+    // },ticks)
 }
 
 function interact(x,y){
     if(document.activeElement.tagName != 'LI')
     tryAddingMelodyNote(x,y)
+}
+
+function interact_hover(x,y){
+    if(document.activeElement.tagName == 'LI'){
+        hovering_row = null;
+        return;
+    }
+    if (x <= icanvas.width/NUM_COLS || y < 0 || x > icanvas.width || y > icanvas.height) {
+        hovering_row = null;
+        return;
+    }
+
+    hovering_row = [parseInt(y / (icanvas.height/NUM_ROWS)), parseInt(x / (icanvas.width/NUM_COLS))]
+    // console.log('hovering at:',hovering_row)
 }
 
 
@@ -184,30 +228,68 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
         cctx.fillText(computed_chords[i],(col + 0.5)*w,h)   
     }
 
-    ctx.fillStyle = '#3f9da6'
-    for(let num of melody_notes.values()){
-        let row = parseInt(num/C)
-        let col = num%C
-        // console.log(obj)
-        ctx.fillRect(col*w,row*h,w,h)
+    // for(let num of melody_notes.values()){
+    //     let row = parseInt(num/C)
+    //     let col = num%C
+    //     // console.log(obj)
+    //     ctx.fillRect(col*w,row*h,w,h)
 
-        mctx.fillStyle = '#FFFFFF'
-        mctx.textAlign = 'center'
-        mctx.fillText(notenames[R-1-row],(col + 0.5)*w,h)   
+    //     mctx.fillStyle = '#FFFFFF'
+    //     mctx.textAlign = 'center'
+    //     mctx.fillText(notenames[R-1-row],(col + 0.5)*w,h)   
+    // }
+
+    if(PIANO_RECORDING != true)
+    {
+        let chrono = Object.keys(playback_ids).sort((a,b) => playback_ids[a].timestamp[0] - playback_ids[b].timestamp[0])
+        // if(chrono.length) console.log(chrono)
+        for(let id of chrono){
+            let row = R - 1 - playback_ids[id].note;
+            let col = 1 + (playback_ids[id].timestamp[0] * 16 / 100)
+            let col2 = 1 + (playback_ids[id].timestamp[1] * 16 / 100)
+            let len = col2-col
+
+            ctx.fillStyle = '#dddddd'
+            ctx.fillRect(col*w, row*h, w*len, h)
+            ctx.fillStyle = '#3f9da6'
+            ctx.fillRect(col*w + 1, row*h + 1, w*len - 2, h - 2)
+
+        }
+
     }
 
-    for(let pair of recorded_piano){
-        let wid = w + pair[1] * (canvas.width - w) / 100
-        let i=0;
-        for(;notenames[i]!=pair[0];i++);
-        i = R-1-i
-        ctx.fillRect(wid,i*h,w,h)
+    else {
+        for(let i=0;i<NUM_ROWS;i++){
+            let notename = notenames[i]
+            for(let hit of playback_notes[notename]){
+                let row = R - 1 - i;
+                let col = 1 + (hit[0] * 16 / 100)
+                let end = hit[1] < 0 ? cursor_position : hit[1]
+                let col2 = 1 + (end * 16 / 100)
+                let len = col2-col
+
+                ctx.fillStyle = '#dddddd'
+                ctx.fillRect(col*w, row*h, w*len, h)
+                ctx.fillStyle = '#3f9da6'
+                ctx.fillRect(col*w + 1, row*h + 1, w*len - 2, h - 2)
+
+            }
+        }
     }
+
+    // for(let pair of recorded_piano){
+    //     let wid = w + pair[1] * (canvas.width - w) / 100
+    //     let i=0;
+    //     for(;notenames[i]!=pair[0];i++);
+    //     i = R-1-i
+    //     ctx.fillRect(wid,i*h,w,h)
+    // }
 }
 
 
 function ianimate(){
     ictx.fillStyle = '#BBBBBB'
+    if(PIANO_RECORDING == true) ictx.fillStyle = '#EEBBBB'
     ictx.fillRect(0,0,icanvas.width, icanvas.height)
 
     cctx.fillStyle = '#676767'
@@ -242,25 +324,8 @@ function ianimate(){
 ianimate()
 
 function saveInputCanvas(){
-    let R = NUM_ROWS
-    let C = NUM_COLS
-    let res = [...Array(16).keys()].map(x=>null)
-    for(let num of melody_notes){
-        let row = parseInt(num/C)
-        let col = (num % C) - 1
-        res[col] = notenames[R-1-row]
-    }
-    if (res[0] == null) return false
-    let cur = res[0]
-    for(let i=1;i<16;i++){
-        if(res[i] == null) res[i] = cur
-        else cur = res[i]
-        // console.log(res[i])
-    }
-    // console.log(res)
-    res = res.join(' ')
-    document.getElementById('melody-input').value = res
-    return true
+    calculateMelody()
+    return;
 }
 
 function playInputCanvas() {
@@ -270,33 +335,23 @@ function playInputCanvas() {
 
 
 function quantizeNotes(ctx=ictx,canvas=icanvas) {
-    for (let i=0;i<recorded_piano.length;i++){
-        let move = recorded_piano[i][1] % 6.25 >= 3.125 ? 1 : 0 // 6.25 = 1/16 %
-        let quantizedcol = parseInt(recorded_piano[i][1] / 6.25) + move
-        if(quantizedcol == NUM_COLS - 1) quantizedcol--;
-        // recorded_piano[i][1] = 6.25 * (quantizedcol)
-        let num
-        let j=0;
-        for(;notenames[j]!=recorded_piano[i][0];j++);
-        let row = NUM_ROWS-1-j;
-        num = row * NUM_COLS + quantizedcol + 1
-        melody_notes.add(num)
-
-        let col = num % NUM_COLS
-        col--
-        let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
-        // console.log(recorded_piano[i][0])
-        melodyID[num] = Tone.Transport.schedule(function(time){
-            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.001)
-        },ticks)
-    }
-    recorded_piano = []
-    saveInputCanvas()
+    let quantInt = parseInt(document.getElementById('quantize-select').value)
+    clearPlaybackNotes(reset=false);
+    for(let i=0;i<NUM_ROWS;i++)
+        for(let j=0;j<playback_notes[notenames[i]].length; j++){
+            let start = playback_notes[notenames[i]][j][0]
+            let col = Math.round(start / (100/quantInt))
+            if(col * 100 / quantInt == 100) col--;
+            let prev = playback_notes[notenames[i]][j][0]
+            playback_notes[notenames[i]][j][0] = col * 100 / quantInt
+            playback_notes[notenames[i]][j][1] += playback_notes[notenames[i]][j][0] - prev
+            playback_notes[notenames[i]][j][1] = Math.min(playback_notes[notenames[i]][j][1], 100)
+        }    
+    addPlaybackNotes()
     
 }
 
 function clearInputCanvas() {
-    melody_notes = new Set()
     computed_chords = []
     for(let num of Object.keys(melodyID)){
         Tone.Transport.clear(melodyID[num])
@@ -307,7 +362,8 @@ function clearInputCanvas() {
         Tone.Transport.clear(num)
     }
     chordsID = []
-    document.getElementById('melody-input').value = ''
+    clearPlaybackNotes()
+    // document.getElementById('melody-input').value = ''
 }
 
 
@@ -315,6 +371,7 @@ function clearInputCanvas() {
 function computeCanvas() {
     saveInputCanvas()
     clearChords()
+
     computed_chords = createAccompaniment()
     // console.log(computed_chords.length == 0)
     let reg = parseInt(document.querySelector('input[name="regularity"]:checked').id.split('-')[1])
@@ -342,30 +399,52 @@ function pauseInputCanvas(){
 }
 
 function stopInputCanvas(){
+    document.getElementById('record-icon').style.color = 'white'
     Tone.Transport.stop()
     cursor_position = 0
-    quantizeNotes()
-    PIANO_RECORDING = null
+    if(PIANO_RECORDING == true){
+        PIANO_RECORDING = null
+        addPlaybackNotes()
+    }
+
+    if(MIC_RECORDING == true){
+        MIC_RECORDING = false
+        MIC.close()
+    }
+    
+}
+
+function calculateMelody(){
+    let mel = [...Array(16).keys()].map(x=>[null, Infinity])
+    for(let id in playback_ids){
+        let hit = playback_ids[id].timestamp
+        let col = Math.round(hit[0] / 100 * 16)
+        let dist = Math.abs(hit[0] - col * 100 / 16)
+        if(dist < mel[col][1])
+            mel[col] = [playback_ids[id].note, dist]
+    }
+    // console.log(mel)
+    if(mel[0][0] == null) return
+
+    let cur = mel[0][0]
+    for(let i=1;i<mel.length;i++){
+        if (mel[i][0] == null) mel[i][0] = cur;
+        else cur = mel[i][0]
+    }
+
+    document.getElementById('melody-input').value = mel.map(x=>notenames[x[0]]).join(' ')
 }
 
 function readMelodyInput() {
     let melody = document.getElementById('melody-input').value.split(' ').slice(0,16)
-    clearInputCanvas()
-    for(let i=0; i<melody.length; i++){
-        let note = melody[i]
-        let row = NUM_ROWS - 1 - reverse_notenames[note]
-        let col = i+1
-        let num = row*NUM_COLS + col
-        melody_notes.add(num)
-        col--
-        let ticks = String(parseInt(col/4)) + ':' + String(col%4) + ':0'
-        melodyID[num] = Tone.Transport.schedule(function(time){
-            leads[CURRENT_LEAD].tone.triggerAttackRelease(notenames[NUM_ROWS-1-row],0.001)
-            // console.log(ticks)
-        },ticks)
-        // console.log(notenames[23-row])
+    clearPlaybackNotes()
+
+    for(let i=0;i<melody.length;i++){
+        let start = i*100/16
+        let end = (i+1)*100/16
+        playback_notes[melody[i]].push([start,end])
     }
-    document.getElementById('melody-input').value = melody.join(' ')
+    addPlaybackNotes()
 }
 
 

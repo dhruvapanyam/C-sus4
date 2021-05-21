@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
 
     <title>Csus4</title>
 
@@ -21,7 +22,7 @@
 
             <div class='input-container'>
                 <div class="input-div">
-                    <input class="input_element" type="text" id="melody-input" value="C4 E4 G4 A4 A#4 A4 G4 E4 F4 A4 C5 D5 D#5 D5 C5 C5" style="background-color: rgba(0,0,0,0.1);width: 90%">
+                    <input class="input_element" type="text" id="melody-input" placeholder="Enter the input (in notes)" value="C4 E4 G4 A4 A#4 A4 G4 E4 F4 A4 C5 D5 D#5 D5 C5 C5" style="background-color: rgba(0,0,0,0.1);width: 90%">
                     <button class="waves-effect waves-light btn brown z-depth-5" style="width: 9%;" onclick="readMelodyInput()">READ</button>
                 </div>
                 
@@ -33,7 +34,7 @@
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="pauseInputCanvas()"><i class="material-icons">pause</i></button>
                     <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="stopInputCanvas()"><i class="material-icons">stop</i></button>
                     <!-- <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="InputCanvas()"><i class="material-icons">stop</i></button> -->
-                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="recordInputCanvas()"><i class="material-icons">fiber_manual_record</i></button>
+                    <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="recordInputCanvas()"><i id="record-icon" class="material-icons">fiber_manual_record</i></button>
                     <span style="color: white">Tempo: &nbsp;</span>
                     <input type="range" min=30 max=150 value=90 oninput="changeTempo(this.value)" style="width: 15%;">
                     <span style="color: white;" id="tempo-value">90</span>
@@ -49,6 +50,18 @@
                       <input type="checkbox" onchange="toggleLoop(this.checked)" />
                       <span style="color:white">Loop</span>
                     </label>
+                    <div class="row" style="float: right; margin-right: 2%; width: 18%">
+                      <div class="col s6">
+                        <button class="waves-effect waves-light btn-small brown z-depth-5" onclick="quantizeNotes()">QUANTIZE</button>
+                      </div>
+                      <div class="col s6">
+                        <select id="quantize-select">
+                          <option value="16">1/16</option>
+                          <option value="32">1/32</option>
+                          <option value="64">1/64</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="compute-controls-container" style="background-color: rgba(221,221,221,0.6);">
@@ -105,6 +118,7 @@
                     </div>
                     <div id="piano-container" style="width: 71.7%;float: left;">
                       <canvas id="piano-canvas" class="z-depth-5"></canvas>
+                      <canvas id="vocal-canvas" class="z-depth-5" style="display: none;"></canvas>
                     </div>
                   </div>
 
@@ -173,13 +187,33 @@
                     </div>
                   </div>
                 </div>
+
+                <div class="compute-controls-container" style="margin-top:2%; background-color: rgba(211,211,211,0.6);">
+                  <div style="text-align: center;">
+                    <h5>MODE</h5>
+                    <hr style="width: 80%">
+                  </div>
+                  <div class="row" style="margin: 10%; text-align: center;">
+                    <div class="col s6">
+                      <label>
+                        <input id="mode-1" class="with-gap" checked name="app-mode" type="radio"  onchange="changeAppMode(this.checked ? 'midi' : 'mic')"   />
+                        <span style="color: black;">MIDI</span>
+                      </label>
+                    </div>
+                    <div class="col s6">
+                      <label>
+                        <input id="mode-2" class="with-gap" name="app-mode" type="radio" onchange="changeAppMode(this.checked ? 'mic' : 'midi')"  />
+                        <span style="color: black;">MIC</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
                
                 
                 <img id="piano-img" src="./imgs/piano.png" style="visibility: hidden; display: none;" >
             </div>
             
-
         </div>
 
 <!-- 
@@ -204,6 +238,7 @@
 <script src="./js/controls.js"></script>
 <script src="./js/piano.js"></script>
 <script src="./js/midi.js"></script>
+<script src="./js/vocals.js"></script>
 <script src="./js/script.js"></script>
 <!-- <script src="./js/grammar.js"></script> -->
 <!-- <script src="./js/parse.js"></script> -->

@@ -3,6 +3,13 @@ var last_piano_note = null
 var playing = new Set()
 var PIANO_RECORDING = null
 
+function reset_playback_notes(){
+    for(let i=0;i<32;i++){
+        playback_notes[notenames[i]] = []
+    }
+}
+
+reset_playback_notes()
 
 document.addEventListener('keydown',function(k){
     k = k.key
@@ -11,8 +18,10 @@ document.addEventListener('keydown',function(k){
 
     if (document.getElementById('piano-canvas').style.display == 'none') return
 
-    for(let i = 0; i<whiteKeys.length; i++){
-        let key = whiteKeys[i]
+    let allKeys = whiteKeys.concat(...blackKeys)
+
+    for(let i = 0; i<allKeys.length; i++){
+        let key = allKeys[i]
         if (key.bind.toLowerCase() == k.toLowerCase())
         {
             if (!playing.has(key.key))
@@ -29,29 +38,8 @@ document.addEventListener('keydown',function(k){
                     last_piano_note = key.key
                     // console.log(last_piano_note,cursor_position)
                     recorded_piano.push([last_piano_note,cursor_position])
-                }
-            }
-            return
-        }
-    }
-    for(let i = 0; i<blackKeys.length; i++){
-        let key = blackKeys[i]
-        // console.log(key)
-        if (key.bind.toLowerCase() == k.toLowerCase())
-        {
-            if (!playing.has(key.key))
-            {
-                leads[CURRENT_LEAD].tone.triggerAttack(key.key)
-                playing.add(key.key)
-                if(PIANO_RECORDING == false){
-                    startRecordingPiano()
-                    PIANO_RECORDING = true
-                    Tone.Transport.start()
-                }
-                if(PIANO_RECORDING == true){
-                    last_piano_note = key.key
-                    // console.log(last_piano_note,cursor_position)
-                    recorded_piano.push([last_piano_note,cursor_position])
+                    playback_notes[key.key].push([cursor_position,-1]);
+
                 }
             }
             return
@@ -65,21 +53,18 @@ document.addEventListener('keyup',function(k){
 
     if (document.getElementById('piano-canvas').style.display == 'none') return
     k = k.key
-    for(let i = 0; i<whiteKeys.length; i++){
-        let key = whiteKeys[i]
+
+    let allKeys = whiteKeys.concat(...blackKeys)
+
+    for(let i = 0; i<allKeys.length; i++){
+        let key = allKeys[i]
         if (key.bind.toLowerCase() == k.toLowerCase())
         {
             leads[CURRENT_LEAD].tone.triggerRelease(key.key)
             playing.delete(key.key)
-            return
-        }
-    }
-    for(let i = 0; i<blackKeys.length; i++){
-        let key = blackKeys[i]
-        if (key.bind.toLowerCase() == k.toLowerCase())
-        {
-            leads[CURRENT_LEAD].tone.triggerRelease(key.key)
-            playing.delete(key.key)
+            if(PIANO_RECORDING) {
+                playback_notes[key.key][playback_notes[key.key].length - 1][1] = cursor_position;
+            }
             return
         }
     }
@@ -161,8 +146,11 @@ function drawImage(){
 }
 
 function animate(){
-    drawImage()
-    drawKeys(playing)
+    if(APP_MODE == 'midi') {
+
+        drawImage()
+        drawKeys(playing)
+    }
     requestAnimationFrame(animate)
 }
 
@@ -170,9 +158,62 @@ animate()
 
 
 function recordInputCanvas() {
-    PIANO_RECORDING = false
+    document.getElementById('record-icon').style.color = 'red'
+
+    if(APP_MODE == 'midi'){
+        PIANO_RECORDING = false
+    }
+    else
+        recordVoice()
 }
 
 function startRecordingPiano() {
     PIANO_RECORDING = true
+}
+
+
+
+var playback_ids = {}
+
+function addPlaybackNotes(){
+    for(let i=0;i<NUM_ROWS;i++){
+        for(let j=0;j<playback_notes[notenames[i]].length; j++){
+            let hit = playback_notes[notenames[i]][j]
+            if(hit[1] == -1) playback_notes[notenames[i]][j][1] = 100;
+            addOnePlaybackNote(i, hit)
+        }
+    }
+    console.log(playback_ids)
+}
+
+function addOnePlaybackNote(i, hit) {
+    let t = (hit[0] / 100) * (16 * 60 / Tone.Transport.bpm.value)
+    let t2 = (hit[1] / 100) * (16 * 60 / Tone.Transport.bpm.value)
+    // console.log(t, notenames[i], hit)
+    let id = Tone.Transport.schedule(function(time){
+        // console.log(notenames[i],t,t2)
+        // console.log('attacking '+notenames[i])
+        leads[CURRENT_LEAD].tone.triggerAttack(notenames[i])
+    }, t)
+    let id2 = Tone.Transport.schedule(function(time){
+        // console.log(notenames[i],t,t2)
+        // console.log('releasing '+notenames[i])
+        leads[CURRENT_LEAD].tone.triggerRelease(notenames[i])
+    }, t2)
+    playback_ids[id] = {
+        note: i,
+        timestamp: hit,
+        end: id2
+    }
+}
+
+
+function clearPlaybackNotes(reset=true){
+    console.log('clearing')
+    if(reset) reset_playback_notes()
+    for(let id in playback_ids){
+        Tone.Transport.clear(id)
+        Tone.Transport.clear(playback_ids[id].end)
+    }
+    playback_ids = {}
 }

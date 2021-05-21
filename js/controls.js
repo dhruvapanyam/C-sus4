@@ -1,3 +1,24 @@
+// APP MODE
+
+var APP_MODE = 'midi'
+function changeAppMode(val){
+    APP_MODE = val;
+
+    if(APP_MODE == 'midi'){
+        vcanvas.style.display = 'none'
+        canvas.style.display = 'block'
+        document.getElementById('record-icon').innerHTML = 'fiber_manual_record'
+    }
+    else if(APP_MODE == 'mic'){
+        vcanvas.style.display = 'block'
+        canvas.style.display = 'none'
+        document.getElementById('record-icon').innerHTML = 'mic'
+    }
+}
+
+
+
+
 // --------------------------- TONES ---------------------------
 
 let tone_paths = [
@@ -18,6 +39,9 @@ let tone_paths = [
     'Tenor Sax-C4.wav',
     'Violin-C4.wav'
 ]
+
+const release_amt_lead = 10;
+const release_amt_acc = 100;
 
 var accompaniments = []
 var leads = []
@@ -47,7 +71,7 @@ for(let path of accompaniment_tone_paths){
             acc = new Tone.Sampler({
                 'C3': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_acc
             })
             break
         
@@ -55,7 +79,7 @@ for(let path of accompaniment_tone_paths){
             acc = new Tone.Sampler({
                 'C4': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_acc
             })
             break
 
@@ -63,7 +87,7 @@ for(let path of accompaniment_tone_paths){
             acc = new Tone.Sampler({
                 'F#4': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_acc
             })
 
     }
@@ -92,7 +116,7 @@ for(let path of lead_tone_paths){
             lead = new Tone.Sampler({
                 'C3': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_lead
             })
             break
         
@@ -100,7 +124,7 @@ for(let path of lead_tone_paths){
             lead = new Tone.Sampler({
                 'C4': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_lead
             })
             break
 
@@ -108,7 +132,7 @@ for(let path of lead_tone_paths){
             lead = new Tone.Sampler({
                 'F#4': './../samples/'+path[1]
             },{
-                release: 80
+                release: release_amt_lead
             })
 
     }
@@ -209,19 +233,42 @@ function tempoSchedule(time){
             metronome.triggerAttackRelease('C3','+0')
     }
     cursor_position += 100/(16 * regularity)
+
+    if(MIC_RECORDING){
+        let vals = mic_fft.getValue()
+        let thresh = 70;
+        let s = 0
+        for(let val of vals){
+            s += Math.abs(Math.max(val,-thresh))
+        }
+        s = thresh * 1024 - s;
+
+        waveform.push(s)
+
+
+        detectPitch()
+        // let detected_pitch = detectPitch();
+        // console.log(detected_pitch)
+        // frequencies.push(detected_pitch)
+    }
     
     // console.log(Tone.Transport.position)
     if (cursor_position >= 100) {
         cursor_position = 0
         if(PIANO_RECORDING == true){
-            quantizeNotes()
-            PIANO_RECORDING = null
+            stopInputCanvas()
+        }
+        if(MIC_RECORDING == true){
+            MIC_RECORDING = false
+            MIC.close()
+            document.getElementById('record-icon').style.color = 'white'
+
         }
         if(Tone.Transport.loop == false) Tone.Transport.stop()
     }
 }
 
-let regularity = 32
+var regularity = 32
 var tempoEventID = Tone.Transport.scheduleRepeat(tempoSchedule,tempo_to_time(Tone.Transport.bpm.value)/regularity)
 
 
@@ -252,4 +299,27 @@ function playChord(chord) {
         accompaniments[CURRENT_ACCOMPANIMENT].tone.triggerAttackRelease(assignOctave(note%12,OCTAVE + parseInt(note/12)),0.001)
     }
 }
+
+
+
+
+
+const NUM_ROWS = 32
+const NUM_COLS = 17
+
+
+var notenames = ['C3','C#3','D3','D#3','E3','F3','F#3','G3','G#3','A3','A#3','B3','C4','C#4','D4','D#4','E4','F4','F#4','G4','G#4','A4','A#4','B4','C5','C#5','D5','D#5','E5','F5','F#5','G5']
+var reverse_notenames = {}
+for(let i=0;i<notenames.length;i++)
+    reverse_notenames[notenames[i]] = i
+
+
+
+
+// Contains set of notes and when they are played
+var playback_notes = {}
+
+
+// Contains resulting melody to feed to Grammar
+var melody_result = []
 

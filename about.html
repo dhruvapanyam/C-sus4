@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./js/tone.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <title>Csus4</title>
+</head>
+<body>
+
+    <label>Pitch: <span id="pitch-label"></span> &nbsp; Hz</label>
+    
+</body>
+</html>
+
+
+<script>
+
+const model_url = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/'
+const audioContext = new AudioContext()
+
+let MIC = new Tone.UserMedia()
+MIC.toMaster()
+
+
+MIC.open().then(()=>{
+    console.log('loaded mic')
+    setupPitchDetection()
+})
+var pitch;
+
+function setupPitchDetection(){
+    pitch = ml5.pitchDetection(
+    model_url,
+    audioContext,
+    MIC._mediaStream.mediaStream,
+    modelLoaded
+    );
+}
+
+function modelLoaded(){
+    console.log('loaded')
+    setInterval(detectPitch, 100)
+
+}
+
+function detectPitch(){
+    pitch.getPitch(function(err, frequency) {
+    document.getElementById('pitch-label').innerHTML = parseInt(frequency)
+    });
+}
+
+
+</script>
