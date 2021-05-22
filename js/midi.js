@@ -249,7 +249,7 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
             let col2 = 1 + (playback_ids[id].timestamp[1] * 16 / 100)
             let len = col2-col
 
-            ctx.fillStyle = '#dddddd'
+            ctx.fillStyle = '#1d7b84'
             ctx.fillRect(col*w, row*h, w*len, h)
             ctx.fillStyle = '#3f9da6'
             ctx.fillRect(col*w + 1, row*h + 1, w*len - 2, h - 2)
@@ -268,7 +268,7 @@ function fillNotes(ctx=ictx, canvas=icanvas) {
                 let col2 = 1 + (end * 16 / 100)
                 let len = col2-col
 
-                ctx.fillStyle = '#dddddd'
+                ctx.fillStyle = '#1d7b84'
                 ctx.fillRect(col*w, row*h, w*len, h)
                 ctx.fillStyle = '#3f9da6'
                 ctx.fillRect(col*w + 1, row*h + 1, w*len - 2, h - 2)
@@ -329,7 +329,7 @@ function saveInputCanvas(){
 }
 
 function playInputCanvas() {
-    saveInputCanvas()
+    // saveInputCanvas()
     Tone.Transport.start()
 }
 
@@ -409,6 +409,7 @@ function stopInputCanvas(){
 
     if(MIC_RECORDING == true){
         MIC_RECORDING = false
+        RECORDER.stop()
         MIC.close()
     }
     

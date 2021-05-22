@@ -207,6 +207,25 @@
                       </label>
                     </div>
                   </div>
+                  <div class="row" id='transcribe-div' style="text-align: center; display: none;">
+                    <div class="col s12">
+                      <button class="btn waves-effect brown" onclick="transcribeVocals()">TRANSCRIBE</button>
+                    </div>
+                    <div class="col s12" style="margin-top: 1%;">
+                      <label>
+                        <input id="transcribe-16" class="with-gap" checked name="transcribe-interval" type="radio"/>
+                        <span style="color: black;">1/16</span>
+                      </label>
+                      <label style="margin-left: 15%;">
+                        <input id="transcribe-32" class="with-gap" name="transcribe-interval" type="radio"/>
+                        <span style="color: black;">1/32</span>
+                      </label>
+                      <label style="margin-left: 15%;">
+                        <input id="transcribe-64" class="with-gap" name="transcribe-interval" type="radio"/>
+                        <span style="color: black;">1/64</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
                
@@ -229,6 +248,7 @@
          -->
         
     </div>
+    <audio style="display: none;" id="recorded-audio" controls></audio>
     
 
 </body>

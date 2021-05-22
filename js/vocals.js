@@ -1,7 +1,8 @@
 const audioContext = new AudioContext()
 
 var MIC = new Tone.UserMedia().toMaster()
-var mic_fft = new Tone.Analyser()
+const FFT_SIZE = 64
+var mic_fft = new Tone.Analyser('fft',FFT_SIZE)
 MIC.connect(mic_fft)
 
 
@@ -47,6 +48,7 @@ function openMic(){
 
 
 function recordVoice(){
+    recordedAudioPlayer.stop()
     let wait = tempo_to_time(Tone.Transport.bpm.value) * 4
     openMic()
     waveform = []
@@ -54,6 +56,7 @@ function recordVoice(){
     startMetronome(4)
     setTimeout(function(){
         MIC_RECORDING = true
+        RECORDER.start()
         playInputCanvas()
     },wait * 1000)
 }
@@ -64,7 +67,7 @@ var vctx = vcanvas.getContext('2d')
 
 
 vcanvas.width = window.innerWidth * 0.5
-vcanvas.height = canvas.width * (0.35)
+vcanvas.height = canvas.width * (0.3)
 
 var waveform = []
 var frequencies = []
@@ -76,9 +79,10 @@ function drawWaveForm(ctx=vctx, canvas=vcanvas){
 
     ctx.lineWidth = 0.8
 
+    let wave_h = hgt/3
 
     ctx.fillStyle = '#AA6666'
-    ctx.fillRect(0,0,wid,hgt/2)
+    ctx.fillRect(0,0,wid,hgt/3)
     
     ctx.fillStyle = '#666666'
     ctx.fillRect(0,0,wid/17,hgt)
@@ -93,19 +97,19 @@ function drawWaveForm(ctx=vctx, canvas=vcanvas){
 
     for(let i=0;i < waveform.length; i++){
         let w = offset + i * total / (16 * regularity)
-        ctx.moveTo(w, hgt/4)
-        let h = hgt*3/16  * waveform[i] / largest
-        ctx.lineTo(w, hgt/4 - h)
-        ctx.moveTo(w,hgt/4)
-        ctx.lineTo(w,hgt/4 + h)
+        ctx.moveTo(w, wave_h/2)
+        let h = wave_h*3/8  * waveform[i] / largest
+        ctx.lineTo(w, wave_h/2 - h)
+        ctx.moveTo(w,wave_h/2)
+        ctx.lineTo(w,wave_h/2 + h)
     }
     ctx.closePath()
     ctx.stroke()
 
 
     ctx.beginPath()
-    ctx.moveTo(wid*3/34, hgt/4)
-    ctx.lineTo(wid*33/34,hgt/4)
+    ctx.moveTo(wid*3/34, wave_h/2)
+    ctx.lineTo(wid*33/34,wave_h/2)
     // ctx.stroke()
     ctx.closePath()
     ctx.strokeStyle = '#AAAAAA'
@@ -115,7 +119,7 @@ function drawWaveForm(ctx=vctx, canvas=vcanvas){
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '13px sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText('dB', wid/34, hgt/4)
+    ctx.fillText('dB', wid/34, wave_h/2)
 
 
 }
@@ -125,12 +129,15 @@ function drawFrequencyForm(ctx=vctx, canvas=vcanvas){
     let hgt = canvas.height
 
     ctx.fillStyle = '#AAAAAA'
-    ctx.fillRect(wid*2/17, hgt/2 + hgt/32, wid*14/17, hgt/2 - hgt/16)
 
     let offset_w = wid*2/17
-    let offset_h = hgt/2 + hgt/32
-    let tot_h = hgt/2 - hgt/16
+    let offset_h = hgt/3 + hgt/32
+    let tot_h = hgt*2/3 - hgt/16
     let tot_w = wid*14/17
+
+    ctx.fillRect(offset_w, offset_h, tot_w, tot_h)
+
+
     ctx.beginPath()
     // 100Hz to 500Hz
     let num_divs = 40
@@ -169,7 +176,7 @@ function drawFrequencyForm(ctx=vctx, canvas=vcanvas){
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '13px sans-serif'
     ctx.textAlign = 'center'
-    ctx.fillText('Hz', wid/34, hgt*3/4)
+    ctx.fillText('Hz', wid/34, hgt*2/3)
     ctx.fillStyle = '#000000'
     ctx.fillText('500', wid*3/34, offset_h+tot_h/10)
     ctx.fillText('100', wid*3/34, offset_h+tot_h*9/10)
@@ -254,7 +261,100 @@ function transcribe(n=16){
     let arr = frequencies.map(findClosestMusicalNote)
     let res = []
     for (let i = 0; i < n; i++){
-        res.append(mostCommon(arr.slice(i*(16*regularity)/n, (i+1)*(16*regularity)/n)))
+        res.push(mostCommon(arr.slice(i*(16*regularity)/n, (i+1)*(16*regularity)/n)))
     }
     return res
+}
+
+
+
+function transcribeVocals(){
+    let interval = parseInt(document.querySelector('input[name="transcribe-interval"]:checked').id.split('-')[1])
+    let res = transcribe(interval)
+
+    console.log(res)
+
+    let cur = res[0]
+    let cur_interval = [0,-1]
+    for(let i=1; i<res.length; i++){
+        if(cur == res[i]) continue
+
+        let pos = i*100 / interval
+        cur_interval[1] = pos
+
+        let note = reverse_notenames[cur]
+        if(note != undefined)
+            addOnePlaybackNote(note, cur_interval)
+        
+        
+        cur = res[i]
+        cur_interval = [pos,-1]
+    }
+    let pos = 100
+    cur_interval[1] = pos
+
+    let note = reverse_notenames[cur]
+    if(note)
+        addOnePlaybackNote(note, cur_interval)
+
+}
+
+
+
+
+
+
+
+
+const RECORDER_SOURCE = Tone.context.createMediaStreamDestination()
+const RECORDER = new MediaRecorder(RECORDER_SOURCE.stream)
+
+MIC.connect(RECORDER_SOURCE)
+
+var recordedAudioPlayer = new Tone.Player().toMaster()
+
+function loadBuffer(buf,src){
+    // recordedAudioPlayer.load('./../samples/Electric Piano-C4.wav')  
+    recordedAudioPlayer.load(src)  
+    recordedAudioPlayer.sync().start(0)
+    recordedAudioPlayer.start()
+}
+
+var chunks = []
+
+RECORDER.ondataavailable = evt => chunks.push(evt.data)
+RECORDER.onstop = evt => {
+    // console.log(RECORDER)
+    let blob = new Blob(chunks, {type: 'audio/ogg; codecs=opus'})
+    // console.log(blob.stream())
+    src = URL.createObjectURL(blob)
+    document.getElementById('recorded-audio').src = src
+    // audioFile.src = src
+
+    const audioContext = new AudioContext()
+    const fileReader = new FileReader()
+
+    // Set up file reader on loaded end event
+    fileReader.onloadend = () => {
+
+        const arrayBuffer = fileReader.result// as ArrayBuffer
+
+        // Convert array buffer into audio buffer
+        audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => {
+
+        // Do something with audioBuffer
+        console.log(audioBuffer.getChannelData(0))
+        
+        var myBuf = new Tone.Buffer()
+        myBuf.fromArray(audioBuffer.getChannelData(0))
+
+        loadBuffer(myBuf,src)
+
+        })
+
+    }
+
+    //Load blob
+    fileReader.readAsArrayBuffer(blob)
+      
 }

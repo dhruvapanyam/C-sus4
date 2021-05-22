@@ -53,7 +53,7 @@ window.addEventListener('resize',function(e){
     mcanvas.height = icanvas.height /17
 
     vcanvas.width = window.innerWidth * 0.5
-    vcanvas.height = canvas.width * (0.35)
+    vcanvas.height = canvas.width * (0.3)
 
     // console.log(canvas.height)
     document.getElementById('choose-tone').style.height = String(canvas.height)+'px'

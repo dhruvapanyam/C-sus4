@@ -7,11 +7,13 @@ function changeAppMode(val){
     if(APP_MODE == 'midi'){
         vcanvas.style.display = 'none'
         canvas.style.display = 'block'
+        document.getElementById('transcribe-div').style.display = 'none'
         document.getElementById('record-icon').innerHTML = 'fiber_manual_record'
     }
     else if(APP_MODE == 'mic'){
         vcanvas.style.display = 'block'
         canvas.style.display = 'none'
+        document.getElementById('transcribe-div').style.display = 'block'
         document.getElementById('record-icon').innerHTML = 'mic'
     }
 }
@@ -241,7 +243,7 @@ function tempoSchedule(time){
         for(let val of vals){
             s += Math.abs(Math.max(val,-thresh))
         }
-        s = thresh * 1024 - s;
+        s = thresh * FFT_SIZE - s;
 
         waveform.push(s)
 
@@ -260,6 +262,7 @@ function tempoSchedule(time){
         }
         if(MIC_RECORDING == true){
             MIC_RECORDING = false
+            RECORDER.stop()
             MIC.close()
             document.getElementById('record-icon').style.color = 'white'
 
