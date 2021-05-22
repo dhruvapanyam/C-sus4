@@ -176,6 +176,8 @@ function startRecordingPiano() {
 var playback_ids = {}
 
 function addPlaybackNotes(){
+    console.log('adding note events')
+    console.log(playback_notes)
     for(let i=0;i<NUM_ROWS;i++){
         for(let j=0;j<playback_notes[notenames[i]].length; j++){
             let hit = playback_notes[notenames[i]][j]
@@ -212,8 +214,13 @@ function clearPlaybackNotes(reset=true){
     console.log('clearing')
     if(reset) reset_playback_notes()
     for(let id in playback_ids){
-        Tone.Transport.clear(id)
-        Tone.Transport.clear(playback_ids[id].end)
+        clearOnePlaybackNote(id)
     }
     playback_ids = {}
+}
+
+function clearOnePlaybackNote(id){
+    Tone.Transport.clear(id)
+    Tone.Transport.clear(playback_ids[id].end)
+    delete playback_ids[id]
 }

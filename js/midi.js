@@ -336,18 +336,40 @@ function playInputCanvas() {
 
 function quantizeNotes(ctx=ictx,canvas=icanvas) {
     let quantInt = parseInt(document.getElementById('quantize-select').value)
-    clearPlaybackNotes(reset=false);
-    for(let i=0;i<NUM_ROWS;i++)
-        for(let j=0;j<playback_notes[notenames[i]].length; j++){
-            let start = playback_notes[notenames[i]][j][0]
-            let col = Math.round(start / (100/quantInt))
-            if(col * 100 / quantInt == 100) col--;
-            let prev = playback_notes[notenames[i]][j][0]
-            playback_notes[notenames[i]][j][0] = col * 100 / quantInt
-            playback_notes[notenames[i]][j][1] += playback_notes[notenames[i]][j][0] - prev
-            playback_notes[notenames[i]][j][1] = Math.min(playback_notes[notenames[i]][j][1], 100)
-        }    
-    addPlaybackNotes()
+
+    let queue = []
+    for(let id in playback_ids){
+        let start = playback_ids[id].timestamp[0]
+        let col = Math.round(start / (100/quantInt))
+        if(col * 100 / quantInt == 100) col--;
+        let new_start = col * 100 / quantInt
+        let new_end = playback_ids[id].timestamp[1] + new_start - start
+        new_end = Math.min(new_end, 100)
+
+        let note = playback_ids[id].note
+
+        queue.push([id, note, [new_start, new_end]])
+        
+    }
+
+    for(let args of queue){
+        let [id,note,timestamp] = args
+        clearOnePlaybackNote(id)
+        addOnePlaybackNote(note, timestamp)
+    }
+
+    // clearPlaybackNotes(reset=false);
+    // for(let i=0;i<NUM_ROWS;i++)
+    //     for(let j=0;j<playback_notes[notenames[i]].length; j++){
+    //         let start = playback_notes[notenames[i]][j][0]
+    //         let col = Math.round(start / (100/quantInt))
+    //         if(col * 100 / quantInt == 100) col--;
+    //         let prev = playback_notes[notenames[i]][j][0]
+    //         playback_notes[notenames[i]][j][0] = col * 100 / quantInt
+    //         playback_notes[notenames[i]][j][1] += playback_notes[notenames[i]][j][0] - prev
+    //         playback_notes[notenames[i]][j][1] = Math.min(playback_notes[notenames[i]][j][1], 100)
+    //     }    
+    // addPlaybackNotes()
     
 }
 
